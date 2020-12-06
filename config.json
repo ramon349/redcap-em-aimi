@@ -1,9 +1,9 @@
 {
-	"name": "ClassNameHere",
+	"name": "Project EM : A.I. Based Medical Image Diagnosis ",
 
-	"namespace": "Stanford\\ClassNameHere",
+	"namespace": "Stanford\\AIMI",
 
-	"description": "A template for a REDCap External Module",
+	"description": "Stanford ML-models as downloadable, plug-and-play modules for all REDCap users",
 
 	"documentation": "README.md",
 
@@ -12,8 +12,20 @@
 			"name": "Andrew Martin",
 			"email": "andy123@stanford.edu",
 			"institution": "Stanford University"
+		},
+		{
+			"name": "Irvin Szeto",
+			"email": "irvins@stanford.edu",
+			"institution": "Stanford University"
+		},
+		{
+			"name": "Jordan Schultz",
+			"email": "jmschultz@stanford.edu",
+			"institution": "Stanford University"
 		}
 	],
+
+	"framework-version": 5,
 
 	"permissions": [
 		"redcap_module_system_enable",
@@ -25,7 +37,18 @@
 
 	"links": {
 		"project": [
-
+			{
+		        "name": "Run Model",
+		        "icon": "gear",
+		        "url" : "pages/aimi.php",
+		        "show-header-and-footer": false
+			},
+			{
+		        "name": "Select/Config Model",
+		        "icon": "gear",
+		        "url" : "pages/config_model.php",
+		        "show-header-and-footer": false
+			}
 		],
 		"control-center": [
 
@@ -33,7 +56,7 @@
 	},
 
 	"no-auth-pages": [
-
+		"endpoints/syncData"
 	],
 
 	"project-settings": [
@@ -45,6 +68,15 @@
 		}
 	],
 
+	"crons": [
+		{
+			"cron_name": "aimi_cron",
+			"cron_description": "Cron that runs once a day",
+			"method": "projectCron",
+			"cron_frequency": "86400",
+			"cron_max_run_time": "300"
+		}
+	],
 
 	"system-settings": [
 		{
