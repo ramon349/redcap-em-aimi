@@ -39,15 +39,15 @@
 		"project": [
 			{
 		        "name": "Run Model",
-		        "icon": "gear",
+		        "icon": "report",
 		        "url" : "pages/aimi.php",
-		        "show-header-and-footer": false
+		        "show-header-and-footer": true
 			},
 			{
 		        "name": "Select/Config Model",
 		        "icon": "gear",
 		        "url" : "pages/config_model.php",
-		        "show-header-and-footer": false
+		        "show-header-and-footer": true
 			}
 		],
 		"control-center": [
