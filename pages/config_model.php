@@ -2,12 +2,90 @@
 namespace Stanford\AIMI;
 /** @var \Stanford\AIMI\AIMI $module */
 
-$model_names = $module->fetchModelNames();
+$repo_model_names = $module->fetchModelConfigs();
+$model_test_names = array(
+    "model1",
+    "model2",
+    "model3"
+);
 
+$used_list_items = array("<option selected disabled>Please select a previously used model</option>");
+$new_list_items = array("<option selected disabled>Add a new model from repository</option>");
+
+foreach($repo_model_names as $options) //Listing all the Stanford Models from REPO
+    array_push($new_list_items, "<option value='{$options->getGithubUrl()}'>{$options->getPath()}</option>");
+
+foreach($model_test_names as $options)
+    array_push($used_list_items, "<option value='{$options}'>{$options}</option>");
 ?>
+    <form>
+        <div class="grid-container">
+            <div class="grid-x grid-padding-x">
+                <div class="medium-12 cell">
+                    <select >
+                        <?php echo implode($used_list_items, " "); ?>
+                    </select>
+                </div>
 
-<div class="row">
+            </div>
+            <br>
+            <div class="grid-x">
+                <div class="cell medium-offset-6"><h3>OR</h3></div>
+            </div>
+            <br>
+            <div class="grid-x grid-padding-x">
+                <div class="medium-12 cell">
+                    <select >
+                        <?php echo implode($new_list_items, " "); ?>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <hr>
+        <div class="grid-container">
+            <h4>Configuration options</h4>
+            <blockquote>
+                These configuration options are filled in from the selection above, please confirm their
+                validity once selecting an option
+            </blockquote>
+            <div class="grid-x grid-padding-x">
+                <div class="medium-8 cell">
+                    <label>Model Path
+                        <input type="text" placeholder=".medium-6.cell">
+                    </label>
+                </div>
+            </div>
+            <br>
+            <div class="grid-x grid-padding-x">
+                <div class="medium-8 cell">
+                    <label>Version
+                        <input type="text" placeholder=".medium-6.cell">
+                    </label>
+                </div>
+            </div>
+            <br>
+            <div class="grid-x grid-padding-x">
+                <div class="medium-8 cell">
+                    <label>Output Endpoint
+                        <input type="text" placeholder=".medium-6.cell">
+                    </label>
+                </div>
+            </div>
+            <br>
+            <div class="grid-x grid-padding-x">
+                <div class="medium-8 cell">
+                    <label>Configuration alias
+                        <input type="text" placeholder=".medium-6.cell">
+                    </label>
+                </div>
+            </div>
+            <button type="button" class="button">Save</button>
+        </div>
+    </form>
+<!-- Foundation links -->
 
-    Nice
-</div>
+<!-- Compressed CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/foundation-sites@6.6.3/dist/css/foundation.min.css" integrity="sha256-ogmFxjqiTMnZhxCqVmcqTvjfe1Y/ec4WaRj/aQPvn+I=" crossorigin="anonymous">
 
+<!-- Compressed JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/foundation-sites@6.6.3/dist/js/foundation.min.js" integrity="sha256-pRF3zifJRA9jXGv++b06qwtSqX1byFQOLjqa2PTEb2o=" crossorigin="anonymous"></script>
