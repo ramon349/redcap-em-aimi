@@ -1,8 +1,13 @@
 <?php
 namespace Stanford\AIMI;
 
+use Sabre\DAV\Exception;
+
 require_once "emLoggerTrait.php";
 require_once "classes/Client.php";
+require_once "classes/Model.php";
+
+CONST MODEL_REPO_ENDPOINT = 'https://api.github.com/repos/susom/redcap-aimi-models/git/trees/main';
 
 class AIMI extends \ExternalModules\AbstractExternalModule {
 
@@ -17,11 +22,28 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
 		// Other code to run when object is instantiated
 	}
 
-    public function fetchModelNames()
+    public function fetchModelConfigs()
     {
-        $this->setClient(new Client($this));
-        //Check repo link here
-        $response = $this->getClient()->request("GET", "https://api.github.com/repos/facebook/react/contents/");
+        try {
+            $this->setClient(new Client($this));
+
+            //Check repo link here
+            $github_entries = $this->getClient()->request("GET", MODEL_REPO_ENDPOINT);
+            $models = array();
+
+            if(!empty($github_entries['tree'])) {
+                foreach($github_entries['tree'] as $entry) {
+                    if($entry['type'] === 'tree') //Only take dir titles
+                        array_push($models, new Model($this->getClient(), $entry));
+                }
+                return $models;
+            }
+
+            throw new \Exception('Error: Request to pull model files returned null');
+
+        } catch (\Exception $e) {
+            $this->emError($e->getMessage());
+        }
     }
 
 
