@@ -3,8 +3,6 @@
 namespace Stanford\AIMI;
 
 use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\GuzzleException;
-
 
 class Client extends \GuzzleHttp\Client
 {
@@ -22,7 +20,6 @@ class Client extends \GuzzleHttp\Client
     public function request($method, $uri = '', array $options = [])
     {
         try {
-            // make it easy to make call without passing token
             $response = parent::request($method, $uri, $options);
 
             $code = $response->getStatusCode();
