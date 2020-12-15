@@ -2,6 +2,16 @@
 namespace Stanford\AIMI;
 /** @var \Stanford\AIMI\AIMI $module */
 
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+    $module->fetchRedcapConfigs(
+        filter_var($_POST['tree_url'], FILTER_SANITIZE_STRING)
+    );
+}
+
+
+
+
 $repo_model_names = $module->fetchModelConfigs();
 $model_test_names = array(
     "model1",
@@ -12,8 +22,17 @@ $model_test_names = array(
 $used_list_items = array("<option selected disabled>Please select a previously used model</option>");
 $new_list_items = array("<option selected disabled>Add a new model from repository</option>");
 
-foreach($repo_model_names as $options) //Listing all the Stanford Models from REPO
-    array_push($new_list_items, "<option value='{$options->getGithubUrl()}'>{$options->getPath()}</option>");
+if(isset($repo_model_names)) {
+    $hidden_versions = array();
+    foreach($repo_model_names as $options) { //Listing all the Stanford Models from REPO
+        array_push($new_list_items, "<option value='{$options->getGithubUrl()}'>{$options->getPath()}</option>");
+        foreach($options->getVersions() as $version)
+            $hidden_versions[$options->getPath()][] = $version;
+    }
+} else {
+    $repo_model_names = array();
+}
+
 
 foreach($model_test_names as $options)
     array_push($used_list_items, "<option value='{$options}'>{$options}</option>");
@@ -35,7 +54,7 @@ foreach($model_test_names as $options)
             <br>
             <div class="grid-x grid-padding-x">
                 <div class="medium-12 cell">
-                    <select >
+                    <select class="new_model" >
                         <?php echo implode($new_list_items, " "); ?>
                     </select>
                 </div>
@@ -50,15 +69,17 @@ foreach($model_test_names as $options)
             </blockquote>
             <div class="grid-x grid-padding-x">
                 <div class="medium-8 cell">
-                    <label>Model Path
-                        <input type="text" placeholder=".medium-6.cell">
+                    <label>Version
+                        <select id="version">
+                            <option selected disabled>Please select a model</option>
+                        </select>
                     </label>
                 </div>
             </div>
             <br>
             <div class="grid-x grid-padding-x">
                 <div class="medium-8 cell">
-                    <label>Version
+                    <label>Model Path
                         <input type="text" placeholder=".medium-6.cell">
                     </label>
                 </div>
@@ -89,3 +110,7 @@ foreach($model_test_names as $options)
 
 <!-- Compressed JavaScript -->
 <script src="https://cdn.jsdelivr.net/npm/foundation-sites@6.6.3/dist/js/foundation.min.js" integrity="sha256-pRF3zifJRA9jXGv++b06qwtSqX1byFQOLjqa2PTEb2o=" crossorigin="anonymous"></script>
+<script src="<?php echo $module->getUrl('assets/scripts/config_model.js'); ?>"></script>
+<script>
+    var data = <?php echo json_encode($hidden_versions); ?>
+</script>

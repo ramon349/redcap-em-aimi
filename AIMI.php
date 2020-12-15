@@ -28,6 +28,7 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
             $this->setClient(new Client($this));
 
             //Check repo link here
+            //TODO RATE LIMITED TO 60 PER HOUR MIGHT HAVE TO ADUST
             $github_entries = $this->getClient()->request("GET", MODEL_REPO_ENDPOINT);
             $models = array();
 
@@ -44,6 +45,16 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
         } catch (\Exception $e) {
             $this->emError($e->getMessage());
         }
+    }
+
+    public function fetchRedcapConfigs($tree_url)
+    {
+        try {
+//            $this->getClient()->request("GET", )
+        } catch (\Exception $e) {
+            $this->emError($e->getMessage());
+        }
+
     }
 
 
