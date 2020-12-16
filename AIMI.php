@@ -1,13 +1,15 @@
 <?php
 namespace Stanford\AIMI;
 
+use ExternalModules\ExternalModules;
 use Sabre\DAV\Exception;
 
 require_once "emLoggerTrait.php";
 require_once "classes/Client.php";
 require_once "classes/Model.php";
 
-CONST MODEL_REPO_ENDPOINT = 'https://api.github.com/repos/susom/redcap-aimi-models/git/trees/main';
+//CONST MODEL_REPO_ENDPOINT = 'https://api.github.com/repos/susom/redcap-aimi-models/git/trees/main';
+CONST MODEL_REPO_ENDPOINT = 'https://api.github.com/repos/susom/redcap-aimi-models/contents';
 
 class AIMI extends \ExternalModules\AbstractExternalModule {
 
@@ -22,20 +24,22 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
 		// Other code to run when object is instantiated
 	}
 
-    public function fetchModelConfigs()
+    public function fetchModelNames()
     {
         try {
             $this->setClient(new Client($this));
 
-            //Check repo link here
             //TODO RATE LIMITED TO 60 PER HOUR MIGHT HAVE TO ADUST
+            //Grab all root repository contents, non recursively
+            $rate_limit = $this->getClient()->request("GET", 'https://api.github.com/rate_limit');
             $github_entries = $this->getClient()->request("GET", MODEL_REPO_ENDPOINT);
             $models = array();
 
-            if(!empty($github_entries['tree'])) {
-                foreach($github_entries['tree'] as $entry) {
-                    if($entry['type'] === 'tree') //Only take dir titles
-                        array_push($models, new Model($this->getClient(), $entry));
+            //Generate new model for each subtree to record versions
+            if(!empty($github_entries)) {
+                foreach($github_entries as $entry) {
+                    if($entry['type'] === 'dir') //Only take dir titles
+                        array_push($models, $entry);
                 }
                 return $models;
             }
@@ -47,16 +51,76 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
         }
     }
 
-    public function fetchRedcapConfigs($tree_url)
+    public function fetchVersions($path)
     {
         try {
-//            $this->getClient()->request("GET", )
+            //Fetch all contents from repo tree
+            $this->setClient(new Client($this));
+            $contents = $this->getClient()->request("GET", MODEL_REPO_ENDPOINT . '/' . rawurlencode($path));
+            $versions = array();
+            foreach($contents as $entry) {
+                if($entry['type'] === 'dir')
+                    array_push($versions, $entry);
+            }
+
+            return $versions;
+
         } catch (\Exception $e) {
             $this->emError($e->getMessage());
         }
-
+        exit;
     }
 
+    public function fetchModelConfig($path)
+    {
+        try {
+            $this->setClient(new Client($this));
+            $contents = $this->getClient()->request("GET", MODEL_REPO_ENDPOINT . '/' . $path);
+            $payload = array();
+
+            if(!empty($contents)) {
+                foreach($contents as $entry) {
+                    if ($entry['name'] === 'config.js')
+                        $payload['config'] = $entry;
+                    elseif ($entry['name'] === 'redcap_config.json') {
+                        $raw = file_get_contents($entry['download_url']);
+                        $payload['info'] = json_decode($raw, true);
+                    }
+                }
+                return $payload;
+            }
+            throw new \Exception("Error: no config.js found for URI: {$contents['html_url']}");
+
+        } catch (\Exception $e) {
+            $this->emError($e->getMessage());
+        }
+    }
+
+    /**
+     *
+     */
+    public function fetchSavedEntries()
+    {
+        $existing = $this->getProjectSetting(); //TODO How to get all project settings after saving?
+        return $existing;
+    }
+
+    /**
+     * @param $alias
+     * @param $config
+     * @return bool
+     */
+    public function saveConfig($alias, $config)
+    {
+        try{
+//            $existing = $this->getProjectSetting($alias);
+            $result = $this->setProjectSetting($alias, $config); //Will overwrite existing aliases:
+            return true;
+
+        } catch (\Exception $e) {
+            $this->emError($e->getMessage());
+        }
+    }
 
 	// Sync raw data to Master Project , If Institution has agreement in place
 	public function syncMaster(){
