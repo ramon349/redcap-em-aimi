@@ -22,6 +22,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $ret = $module->saveConfig($alias, $_POST['config']);
             echo json_encode($ret);
             break;
+        case 'getExistingModuleConfig':
+            $alias = filter_var($_POST['alias'], FILTER_SANITIZE_ENCODED);
+            $ret = $module->getExistingModuleConfig($alias);
+            echo json_encode($ret);
+            break;
         default:
             $module->emError('Error in ajax handler');
     }

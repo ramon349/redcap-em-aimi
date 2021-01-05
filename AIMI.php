@@ -97,12 +97,17 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
     }
 
     /**
-     *
+     * Fetches the saved model configs
+     * @return array
      */
     public function fetchSavedEntries()
     {
-        $existing = $this->getProjectSetting(); //TODO How to get all project settings after saving?
+//        list($prefix, $version) = ExternalModules::getParseModuleDirectoryPrefixAndVersion($this->getModuleDirectoryName());
+//        $check = ExternalModules::removeProjectSetting($prefix, $this->getProjectId(), 'abc');
+//        $check = ExternalModules::getProjectSettingsAsArray($prefix, $this->getProjectId());
+        $existing = $this->getProjectSetting('aliases');
         return $existing;
+
     }
 
     /**
@@ -113,13 +118,24 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
     public function saveConfig($alias, $config)
     {
         try{
-//            $existing = $this->getProjectSetting($alias);
-            $result = $this->setProjectSetting($alias, $config); //Will overwrite existing aliases:
-            return true;
+            $existing = $this->getProjectSetting('aliases');
+            if (array_key_exists($alias,$existing))
+                throw new \Exception("Error: alias: $alias already exists, skipping");
+
+            $build = array_merge($existing, array($alias=>$config));
+            $result = $this->setProjectSetting('aliases', $build); //Will overwrite existing aliases:
+            http_response_code(200);//return 200 on success
+//            return true;
 
         } catch (\Exception $e) {
             $this->emError($e->getMessage());
+            http_response_code(400);
         }
+    }
+
+    public function getExistingModuleConfig($alias)
+    {
+
     }
 
 	// Sync raw data to Master Project , If Institution has agreement in place

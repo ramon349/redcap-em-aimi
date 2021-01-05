@@ -29,13 +29,28 @@ const fetchModelConfig = (path) => {
 
 };
 
+const getExistingModelConfig = (alias) => {
+    let payload = {
+        'alias': alias,
+        'type' : 'getExistingModelConfig'
+    };
+    $.ajax({
+        data: payload,
+        method: 'POST',
+        url: src, //from php page, ajaxHandler endpoint
+        dataType: 'json'
+    })
+        .done((res) => console.log(res)) //remove column reference
+        .fail((jqXHR, textStatus, errorThrown) => console.log(errorThrown)) //provide notification
+};
+
 const enumerateVersion = (versions) => {
     let html = `<option selected disabled>Select Version here</option>`;
     for(let key in versions){
         html += `<option value=${encodeURIComponent(versions[key]['path'])}>${versions[key]['name']}</option>`;
     }
     $('#version').html(html);
-}
+};
 
 const populateConfig = (response) => {
     if("config" in response){
@@ -68,10 +83,18 @@ const saveConfig = (alias) => {
             url: src, //from php page, ajaxHandler endpoint
             dataType: 'json'
         })
-            .done((res) => console.log(res)) //remove column reference
-            .fail((jqXHR, textStatus, errorThrown) => console.log(errorThrown)) //provide notification
+        .done((res) => triggerAlert('Success: configuration saved', 'alert-success')) //remove column reference
+        .fail((jqXHR, textStatus, errorThrown) => {
+            console.log(errorThrown, textStatus, jqXHR);
+            triggerAlert('Error saving config: please contact administrator', 'alert-danger')
+        }) //provide notification
     }
+};
 
+const triggerAlert = (msg, type) => {
+    $('#alert').text(msg);
+    $('#alert').addClass('type');
+    $('#alert').removeClass('hidden');
 }
 
 $(function(){
@@ -82,6 +105,10 @@ $(function(){
     $('#version').on('change', function(){
         let selected = $(this).find(":selected");
         fetchModelConfig(selected.val());
+    });
+    $('#existing_model').on('change', function(){
+        let selected = $(this).find(":selected");
+        getExistingModelConfig(selected.val());
     });
     $('#submit').on('click', function(){
        let alias = $('#alias').val();

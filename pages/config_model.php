@@ -3,15 +3,11 @@
 namespace Stanford\AIMI;
 /** @var \Stanford\AIMI\AIMI $module */
 
-$repo_model_names = $module->fetchModelNames();
+//$repo_model_names = $module->fetchModelNames();
 $previously_saved_names = $module->fetchSavedEntries();
-$model_test_names = array(
-    "model1",
-    "model2",
-    "model3"
-);
+$model_test_names = $previously_saved_names ? array_keys($previously_saved_names) : array();
 
-$used_list_items = array("<option selected disabled>Please select a previously used model</option>");
+$used_list_items = array("<option selected disabled>Please select a previously saved model</option>");
 $new_list_items = array("<option selected disabled>Add a new model from repository</option>");
 
 if(isset($repo_model_names)) {
@@ -24,9 +20,10 @@ foreach($model_test_names as $options)
 ?>
     <form>
         <div class="grid-container">
+            <div id = 'alert' class="hidden alert" role="alert"></div>
             <div class="grid-x grid-padding-x">
                 <div class="medium-12 cell">
-                    <select >
+                    <select id="existing_model" >
                         <?php echo implode($used_list_items, " "); ?>
                     </select>
                 </div>
