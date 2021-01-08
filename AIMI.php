@@ -110,6 +110,20 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
 
     }
 
+    public function removeConfig($alias)
+    {
+        $existing = $this->getProjectSetting('aliases');
+        if (array_key_exists($alias,$existing)) {
+            unset($existing[$alias]);
+            $result = $this->setProjectSetting('aliases', $existing);
+        } else {
+            $this->emError();
+        }
+
+        return $existing;
+    }
+
+
     /**
      * @param $alias
      * @param $config
@@ -118,6 +132,7 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
     public function saveConfig($alias, $config)
     {
         try{
+            $alias = urldecode($alias); //store key as decoded alias
             $existing = $this->getProjectSetting('aliases');
             if (array_key_exists($alias,$existing))
                 throw new \Exception("Error: alias: $alias already exists, skipping");
@@ -135,7 +150,28 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
 
     public function getExistingModuleConfig($alias)
     {
+        try {
+            $existing = $this->fetchSavedEntries();
+            return $existing[urldecode($alias)];
+        } catch(\Exception $e) {
+            $this->emError($e->getMessage());
+            http_response_code(400);
+        }
+    }
 
+    public function applyConfig($uri)
+    {
+        try{
+            if(isset($uri)) {
+                $result = $this->setProjectSetting('config_uri', $uri);
+                http_response_code(200);//return 200 on success
+            } else {
+                throw new \Exception('URI not passed');
+            }
+        } catch(\Exception $e) {
+            $this->emError($e->getMessage());
+            http_response_code(400);
+        }
     }
 
 	// Sync raw data to Master Project , If Institution has agreement in place

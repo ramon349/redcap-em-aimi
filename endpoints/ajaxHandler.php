@@ -22,9 +22,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $ret = $module->saveConfig($alias, $_POST['config']);
             echo json_encode($ret);
             break;
-        case 'getExistingModuleConfig':
+        case 'getExistingModelConfig':
             $alias = filter_var($_POST['alias'], FILTER_SANITIZE_ENCODED);
             $ret = $module->getExistingModuleConfig($alias);
+            echo json_encode($ret);
+            break;
+        case 'applyConfig':
+            $uri = filter_var($_POST['uri'], FILTER_SANITIZE_STRING);
+            $ret = $module->applyConfig($uri);
             echo json_encode($ret);
             break;
         default:

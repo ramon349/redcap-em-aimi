@@ -3,7 +3,8 @@
 namespace Stanford\AIMI;
 /** @var \Stanford\AIMI\AIMI $module */
 
-//$repo_model_names = $module->fetchModelNames();
+$repo_model_names = $module->fetchModelNames();
+
 $previously_saved_names = $module->fetchSavedEntries();
 $model_test_names = $previously_saved_names ? array_keys($previously_saved_names) : array();
 
@@ -20,7 +21,13 @@ foreach($model_test_names as $options)
 ?>
     <form>
         <div class="grid-container">
-            <div id = 'alert' class="hidden alert" role="alert"></div>
+            <div id = 'alert' class="callout" data-closable style="display: none">
+                <button class="close-button" aria-label="Close alert" type="button" data-close>
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <p></p>
+            </div>
+<!--            <div id = 'alert' class="hidden alert" role="alert"></div>-->
             <div class="grid-x grid-padding-x">
                 <div class="medium-12 cell">
                     <select id="existing_model" >
@@ -84,7 +91,8 @@ foreach($model_test_names as $options)
                     </label>
                 </div>
             </div>
-            <button id="submit" type="button" class="button">Save</button>
+            <button id="submit" type="button" class="button success">Save Configuration</button>
+            <button id="apply" type="button" class="button">Apply to EM</button>
         </div>
     </form>
 <!-- Foundation links -->

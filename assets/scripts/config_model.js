@@ -34,13 +34,14 @@ const getExistingModelConfig = (alias) => {
         'alias': alias,
         'type' : 'getExistingModelConfig'
     };
+
     $.ajax({
         data: payload,
         method: 'POST',
         url: src, //from php page, ajaxHandler endpoint
         dataType: 'json'
     })
-        .done((res) => console.log(res)) //remove column reference
+        .done((res) => populateExistingConfig(res, alias)) //remove column reference
         .fail((jqXHR, textStatus, errorThrown) => console.log(errorThrown)) //provide notification
 };
 
@@ -61,58 +62,140 @@ const populateConfig = (response) => {
     if("info" in response){
         $('#info').html(JSON.stringify(response['info'], null, 2));
     }
+};
 
-}
+const populateExistingConfig = (response, alias) => {
+    $('#config_uri').val(response['url']);
+    $('#path').val(response['path']);
+    $('#info').html(JSON.stringify(response['info'], null, 2));
+    $('#alias').val(alias);
+};
 
-const saveConfig = (alias) => {
-    let config = JSON.parse($('#info').text());
-    config['url'] = $('#config_uri').val();
-    config['path'] = $('#path').val();
+const checkValidity = () => {
+    let check = [
+        $('#info').text() !== '',
+        $('#config_uri').val() !== '',
+        $("#path").val() !== ''
+    ];
+    return !check.includes(false);
+};
 
-    if(alias){
+const applyConfig = () => {
+    let uri = $('#config_uri').val();
+    if(uri){
         let payload = {
-            'url' : src,
-            'type': 'saveConfig',
-            'alias': alias,
-            'config': config
+            'uri': uri,
+            'type' : 'applyConfig'
         };
-        console.log(payload);
+
         $.ajax({
             data: payload,
             method: 'POST',
             url: src, //from php page, ajaxHandler endpoint
             dataType: 'json'
         })
-        .done((res) => triggerAlert('Success: configuration saved', 'alert-success')) //remove column reference
-        .fail((jqXHR, textStatus, errorThrown) => {
-            console.log(errorThrown, textStatus, jqXHR);
-            triggerAlert('Error saving config: please contact administrator', 'alert-danger')
-        }) //provide notification
+            .done((res) => triggerAlert('Success: configuration applied', 'success')) //remove column reference
+            .fail((jqXHR, textStatus, errorThrown) => {
+                console.log(jqXHR)
+                triggerAlert('Error applying config: please contact administrator', 'alert')
+            }) //provide notification
+    }
+};
+
+const saveConfig = () => {
+    let alias = $('#alias').val();
+    if(checkValidity() && alias) { //all options are valid, with alias
+        let config = {};
+        config['info'] = JSON.parse($('#info').text());
+        config['url'] = $('#config_uri').val();
+        config['path'] = $('#path').val();
+
+        let payload = {
+            'url' : src,
+            'type': 'saveConfig',
+            'alias': alias,
+            'config': config
+        };
+        $.ajax({
+            data: payload,
+            method: 'POST',
+            url: src, //from php page, ajaxHandler endpoint
+            dataType: 'json'
+        })
+            .done((res) => triggerAlert('Success: configuration saved', 'success')) //remove column reference
+            .fail((jqXHR, textStatus, errorThrown) => {
+                triggerAlert('Error saving config: please contact administrator', 'alert')
+            }) //provide notification
+    } else {
+        triggerAlert('Some fields are empty, please fill them out before continuing', 'alert');
     }
 };
 
 const triggerAlert = (msg, type) => {
-    $('#alert').text(msg);
-    $('#alert').addClass('type');
-    $('#alert').removeClass('hidden');
-}
+    $("#alert p").text(msg);
+
+    if($('#alert').hasClass('success'))
+        $('#alert').removeClass('success');
+    if($('#alert').hasClass('alert'))
+        $('#alert').removeClass('alert');
+
+    $('#alert').addClass(type);
+    $('#alert').show();
+};
+
+const clearFields = (field) => {
+    switch(field){
+        case 'new_model': //clearing new model + version +
+            $("#new_model").prop('selectedIndex',0);
+            $("#version").prop('selectedIndex', 0);
+            $("#version").find('option').not(':first').remove();
+            $('#info').html("");
+            $('#config_uri').val('');
+            $('#path').val('');
+            $('#alias').val('');
+
+            $('#alias').attr('disabled', true); //disable fields of already saved configuration
+            $('#submit').attr('disabled', true);
+            break;
+        case 'existing_model': //clearing existing model == new model selected
+            $("#existing_model").prop('selectedIndex',0);
+            $('#info').html("");
+            $('#config_uri').val('');
+            $('#path').val('');
+            $('#alias').val('');
+
+            $('#alias').attr('disabled', false); //enable fields
+            $('#submit').attr('disabled', false);
+            break;
+        default:
+            break;
+    }
+};
 
 $(function(){
     $('#new_model').on('change', function(){
+        clearFields('existing_model');
         let selected = $(this).find(":selected");
         fetchVersions(selected.val());
     });
+
     $('#version').on('change', function(){
         let selected = $(this).find(":selected");
         fetchModelConfig(selected.val());
     });
+
     $('#existing_model').on('change', function(){
+        clearFields('new_model');
         let selected = $(this).find(":selected");
         getExistingModelConfig(selected.val());
     });
+
     $('#submit').on('click', function(){
-       let alias = $('#alias').val();
-       saveConfig(alias);
+       saveConfig();
+    });
+
+    $("#apply").on('click', function(){
+       applyConfig();
     });
 });
 

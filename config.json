@@ -27,6 +27,7 @@
 
 	"framework-version": 5,
 
+
 	"permissions": [
 		"redcap_module_system_enable",
 		"redcap_module_project_enable",
@@ -65,7 +66,13 @@
 			"name": "<b>Enable Debug Logging</b><br><i>(optional)</i> Requires installation and configuration of emLogger",
 			"required": false,
 			"type": "checkbox"
-		}
+		},
+        {
+            "key": "config_uri",
+            "name": "<b>Path to the model configuration javascript file</b><br> ",
+            "required": false,
+            "type": "text"
+        }
 	],
 
 	"crons": [
