@@ -24,6 +24,11 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
 		// Other code to run when object is instantiated
 	}
 
+    /**
+     * Fetches all models of type dir
+     * @return array
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
     public function fetchModelNames()
     {
         try {
@@ -51,6 +56,12 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
         }
     }
 
+    /**
+     * Fetches the version count (dirs) given a github path
+     * @param $path
+     * @return array
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
     public function fetchVersions($path)
     {
         try {
@@ -71,6 +82,12 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
         exit;
     }
 
+    /**
+     * Fetches the text information populating the config.js given a github path
+     * @param $path
+     * @return array
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
     public function fetchModelConfig($path)
     {
         try {
@@ -140,7 +157,6 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
             $build = array_merge($existing, array($alias=>$config));
             $result = $this->setProjectSetting('aliases', $build); //Will overwrite existing aliases:
             http_response_code(200);//return 200 on success
-//            return true;
 
         } catch (\Exception $e) {
             $this->emError($e->getMessage());
@@ -148,6 +164,10 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
         }
     }
 
+    /**
+     * @param $alias key to search for
+     * @return mixed
+     */
     public function getExistingModuleConfig($alias)
     {
         try {
@@ -159,6 +179,10 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
         }
     }
 
+    /**
+     * @param $uri github url to config.js of model
+     * @return http_response_code 400 / 200
+     */
     public function applyConfig($uri)
     {
         try{
