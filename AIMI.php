@@ -129,14 +129,14 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
 
     public function removeConfig($alias)
     {
+        $alias = urldecode($alias); //find decoded key
         $existing = $this->getProjectSetting('aliases');
         if (array_key_exists($alias,$existing)) {
             unset($existing[$alias]);
             $result = $this->setProjectSetting('aliases', $existing);
         } else {
-            $this->emError();
+            $this->emError('Error removing alias, alias not found');
         }
-
         return $existing;
     }
 

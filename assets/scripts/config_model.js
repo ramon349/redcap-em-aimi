@@ -61,6 +61,8 @@ const populateConfig = (response) => {
 
     if("info" in response){
         $('#info').html(JSON.stringify(response['info'], null, 2));
+    } else {
+        $('#info').html('No redcap_config.json found in repository for this model');
     }
 };
 
@@ -87,18 +89,21 @@ const applyConfig = () => {
             'uri': uri,
             'type' : 'applyConfig'
         };
-
-        $.ajax({
-            data: payload,
-            method: 'POST',
-            url: src, //from php page, ajaxHandler endpoint
-            dataType: 'json'
-        })
-            .done((res) => triggerAlert('Success: configuration applied', 'success')) //remove column reference
-            .fail((jqXHR, textStatus, errorThrown) => {
-                console.log(jqXHR)
-                triggerAlert('Error applying config: please contact administrator', 'alert')
-            }) //provide notification
+        sendRequest(payload,
+            () => triggerAlert('Success: configuration applied', 'success'),
+            () => triggerAlert('Error applying config: please contact administrator', 'alert')
+        );
+        // $.ajax({
+        //     data: payload,
+        //     method: 'POST',
+        //     url: src, //from php page, ajaxHandler endpoint
+        //     dataType: 'json'
+        // })
+        //     .done((res) => triggerAlert('Success: configuration applied', 'success')) //remove column reference
+        //     .fail((jqXHR, textStatus, errorThrown) => {
+        //         console.log(jqXHR)
+        //         triggerAlert('Error applying config: please contact administrator', 'alert')
+        //     }) //provide notification
     }
 };
 
@@ -116,20 +121,53 @@ const saveConfig = () => {
             'alias': alias,
             'config': config
         };
-        $.ajax({
-            data: payload,
-            method: 'POST',
-            url: src, //from php page, ajaxHandler endpoint
-            dataType: 'json'
-        })
-            .done((res) => triggerAlert('Success: configuration saved', 'success')) //remove column reference
-            .fail((jqXHR, textStatus, errorThrown) => {
-                triggerAlert('Error saving config: please contact administrator', 'alert')
-            }) //provide notification
+        sendRequest(payload,
+            ()=>triggerAlert('Success : configuration saved', 'success'),
+            ()=>triggerAlert('Error saving config: please contact administrator', 'alert')
+        );
+        // $.ajax({
+        //     data: payload,
+        //     method: 'POST',
+        //     url: src, //from php page, ajaxHandler endpoint
+        //     dataType: 'json'
+        // })
+        //     .done((res) => triggerAlert('Success: configuration saved', 'success')) //remove column reference
+        //     .fail((jqXHR, textStatus, errorThrown) => {
+        //         triggerAlert('Error saving config: please contact administrator', 'alert')
+        //     }) //provide notification
     } else {
         triggerAlert('Some fields are empty, please fill them out before continuing', 'alert');
     }
 };
+
+deleteConfig = () => {
+    let alias = $('#alias').val();
+    console.log('deleting ', alias);
+    let payload = {
+        'url' : src,
+        'type': 'deleteConfig',
+        'alias': alias,
+    };
+    sendRequest(payload,
+        () => location.reload(),
+        () => triggerAlert('Error deleting config, please contact administrator')
+    );
+
+};
+
+const sendRequest = (payload, successCallback, failureCallback) => {
+    $.ajax({
+        data: payload,
+        method: 'POST',
+        url: src, //from php page, ajaxHandler endpoint
+        dataType: 'json'
+    })
+    .done((res) => successCallback()) //remove column reference
+    .fail((jqXHR, textStatus, errorThrown) => {
+        failureCallback()
+    })
+};
+
 
 const triggerAlert = (msg, type) => {
     $("#alert p").text(msg);
@@ -144,6 +182,7 @@ const triggerAlert = (msg, type) => {
 };
 
 const clearFields = (field) => {
+    $('#block').html('These configuration options are filled in from the selection above unless a custom configuration is selected, please confirm their validity once selecting an option');
     switch(field){
         case 'new_model': //clearing new model + version +
             $("#new_model").prop('selectedIndex',0);
@@ -154,8 +193,10 @@ const clearFields = (field) => {
             $('#path').val('');
             $('#alias').val('');
 
+            $('#version').attr('disabled', true);
             $('#alias').attr('disabled', true); //disable fields of already saved configuration
             $('#submit').attr('disabled', true);
+            $('#delete').attr('disabled', false);
             break;
         case 'existing_model': //clearing existing model == new model selected
             $("#existing_model").prop('selectedIndex',0);
@@ -164,19 +205,45 @@ const clearFields = (field) => {
             $('#path').val('');
             $('#alias').val('');
 
+            $('#version').attr('disabled', false);
             $('#alias').attr('disabled', false); //enable fields
             $('#submit').attr('disabled', false);
+            $('#delete').attr('disabled', true);
             break;
         default:
             break;
     }
 };
 
+const generateCustom = () => {
+    let example = {
+        "name": "TITLE",
+        "description": "DESCRIPTIVE_TEXT",
+        "authors": [
+            "AUTHOR_1",
+        ],
+        "institution": [
+            "INSTITUTION_1"
+        ],
+        "released": "RELEASE_DATE"
+    };
+    $('#version').attr('disabled', true);
+    $('#info').attr('contentEditable', true);
+    $('#info').html(JSON.stringify(example, null, 2));
+    $('#block').html('Please fill out the following options along with the path to the config.js');
+    $('#config_uri').attr('disabled', false);
+    $('#config_uri').val('https://github.com/example/model1/config.js')
+    $('#path').val('CUSTOM');
+};
+
 $(function(){
     $('#new_model').on('change', function(){
         clearFields('existing_model');
         let selected = $(this).find(":selected");
-        fetchVersions(selected.val());
+        if(selected.val() === 'custom_new')
+            generateCustom();
+        else
+            fetchVersions(selected.val());
     });
 
     $('#version').on('change', function(){
@@ -196,6 +263,10 @@ $(function(){
 
     $("#apply").on('click', function(){
        applyConfig();
+    });
+
+    $('#delete').on('click', function(){
+       deleteConfig();
     });
 });
 

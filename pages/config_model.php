@@ -19,8 +19,9 @@ if(isset($repo_model_names)) {
 foreach($model_test_names as $options)
     array_push($used_list_items, "<option value='{$options}'>{$options}</option>");
 ?>
+<div class="card" style="margin-right: 20px">
     <form>
-        <div class="grid-container">
+        <div class="grid-container" style="margin-top: 20px">
             <div id = 'alert' class="callout" data-closable style="display: none">
                 <button class="close-button" aria-label="Close alert" type="button" data-close>
                     <span aria-hidden="true">&times;</span>
@@ -34,7 +35,6 @@ foreach($model_test_names as $options)
                         <?php echo implode($used_list_items, " "); ?>
                     </select>
                 </div>
-
             </div>
             <br>
             <div class="grid-x">
@@ -44,7 +44,12 @@ foreach($model_test_names as $options)
             <div class="grid-x grid-padding-x">
                 <div class="medium-12 cell">
                     <select id="new_model" >
-                        <?php echo implode($new_list_items, " "); ?>
+                        <optgroup label="Respository Models">
+                            <?php echo implode($new_list_items, " "); ?>
+                        </optgroup>
+                        <optgroup label="Custom">
+                            <option value="custom_new">New Custom Configuration</option>
+                        </optgroup>
                     </select>
                 </div>
             </div>
@@ -61,11 +66,11 @@ foreach($model_test_names as $options)
             </div>
             <hr>
             <h4>Configuration options</h4>
-            <blockquote>
-                These configuration options are filled in from the selection above, please confirm their
+            <blockquote id="block">
+                These configuration options are filled in from the selection above unless a custom configuration is selected, please confirm their
                 validity once selecting an option
             </blockquote>
-            <pre id="info" >
+            <pre id="info" contentEditable="false">
             </pre>
             <br>
             <div class="grid-x grid-padding-x">
@@ -93,8 +98,10 @@ foreach($model_test_names as $options)
             </div>
             <button id="submit" type="button" class="button success">Save Configuration</button>
             <button id="apply" type="button" class="button">Apply to EM</button>
+            <button id="delete" type="button" class="button float-right alert" disabled>Delete</button>
         </div>
     </form>
+</div>
 <!-- Foundation links -->
 
 <!-- Compressed CSS -->

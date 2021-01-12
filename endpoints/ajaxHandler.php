@@ -32,6 +32,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $ret = $module->applyConfig($uri);
             echo json_encode($ret);
             break;
+        case 'deleteConfig':
+            $alias = filter_var($_POST['alias'], FILTER_SANITIZE_ENCODED);
+            $ret = $module->removeConfig($alias);
+            echo json_encode($ret);
+            break;
         default:
             $module->emError('Error in ajax handler');
     }
