@@ -119,12 +119,8 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
      */
     public function fetchSavedEntries()
     {
-//        list($prefix, $version) = ExternalModules::getParseModuleDirectoryPrefixAndVersion($this->getModuleDirectoryName());
-//        $check = ExternalModules::removeProjectSetting($prefix, $this->getProjectId(), 'abc');
-//        $check = ExternalModules::getProjectSettingsAsArray($prefix, $this->getProjectId());
         $existing = $this->getProjectSetting('aliases');
         return $existing;
-
     }
 
     public function removeConfig($alias)
@@ -139,7 +135,6 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
         }
         return $existing;
     }
-
 
     /**
      * @param $alias
@@ -184,7 +179,19 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
      * @return http_response_code 400 / 200
      */
     public function applyConfig($uri)
-    {
+    {   
+        /*
+        this https://github.com/susom/redcap-aimi-models/blob/main/Stanford%20Imaging%201/version_1.0/config.js
+        to this https://raw.githubusercontent.com/susom/redcap-aimi-models/main/Stanford%20Imaging%201/version_1.0/config.js
+        */
+
+
+        //THIS WILL NEED TO STORE TO redcap/temp AND THEN CACHED IN THE TF LIBRARY , THEN DELETED
+
+        $uri = str_replace("https://github.com", "https://raw.githubusercontent.com", $uri);
+        $uri = str_replace("blob/", "", $uri);
+        $this->emDebug("wwheres my log", $uri);
+
         try{
             if(isset($uri)) {
                 $result = $this->setProjectSetting('config_uri', $uri);
@@ -201,7 +208,6 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
 	// Sync raw data to Master Project , If Institution has agreement in place
 	public function syncMaster(){
 		$processed = array();
-
 		return $processed;
 	}
 	// Project Cron
@@ -221,9 +227,9 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
 				$response 	= $client->request('GET', $thisUrl, array(\GuzzleHttp\RequestOptions::SYNCHRONOUS => true));
 				$this->emDebug("running cron for $url on project $project_id");
 			}
-
 		}
-	}
+    }
+    
     /**
      * @return Client
      */

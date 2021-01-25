@@ -24,12 +24,12 @@ class Lambda extends tf.layers.Layer {
     }
 
     computeOutputShape(inputShape) {
-    return [inputShape[0]];
+        return [inputShape[0]];
     }
 
     call(inputs, kwargs) {
     this.invokeCallHook(inputs, kwargs);
-    return inputs[0]
+        return inputs[0]
     }
 }
 // Don't forget to register your custom layers (if any) using this line of code 
@@ -41,26 +41,32 @@ let model;
 // Loads the model, and warms it up with test input. User can configure this load function 
 // according to the input specifications of the model. 
 async function loadModel() {
-    console.log(`# of tensors on OPEN: ${tf.memory().numTensors}` );
+    $('.model-progress-bar').hide();
+    $(".loading_saved_model").hide();
 
-    $('.model-progress-bar').show();
-    function progress_model_load(p){
-        $(".model-progress-bar .progress-bar").css("width",`${Math.round(p * 100)}%`);
-        $(".model-progress-bar .stats_progress_bar").css("left",`${Math.round(p * 100)}%`);
-        $(".model-progress-bar .progress-bar").text(`Loading Model (${Math.round(p * 100)}%) ...`);
-    }
+    console.log(`# of tensors on OPEN: ${tf.memory().numTensors}`);
+    console.log(`# of tensors just before LOAD: ${tf.memory().numTensors}`);
     
-    console.log(`# of tensors just before LOAD: ${tf.memory().numTensors}` );
-
     // Load the model using tensorflow.js API call to load a layers model. This could be a 
     // loadLayersModel() or loadGraphModel() depending on which model the users imports. 
     // More here: https://js.tensorflow.org/api/latest/
-    model = await tf.loadLayersModel(MODEL_CONFIGS.model_path, {'onProgress':progress_model_load});
-    console.log(model);
+    try {
+        $(".loading_saved_model").show();
+        model = await tf.loadLayersModel('indexeddb://current-model');
+        console.log("Saved model loaded from local indexeddb");
+    } catch (error) {
+        $(".loading_saved_model").hide();
+        $('.model-progress-bar').show();
+        model = await tf.loadLayersModel(MODEL_CONFIGS.model_path, {'onProgress':function(p){
+            $(".model-progress-bar .progress-bar").css("width",`${Math.round(p * 100)}%`);
+            $(".model-progress-bar .stats_progress_bar").css("left",`${Math.round(p * 100)}%`);
+            $(".model-progress-bar .progress-bar").text(`Loading Model (${Math.round(p * 100)}%) ...`);
+        }});
+        await model.save('indexeddb://current-model');
+        $(".model-progress-bar .progress").text(`Warming Up ...`);
+        console.log("model not found in local indexeddb, load from cached path");
+    }
     console.log(`# of tensors just after LOAD: ${tf.memory().numTensors}` );
-    
-    $(".model-progress-bar .progress").text(`Warming Up ...`);
-
     await sleep(MODEL_CONFIGS.GUI_WAITTIME);
 
     // Warmup the model before using real data.
@@ -258,7 +264,6 @@ async function getGrads(image, index) {
     console.log(tf.memory());
 }
 
-
 // This function generates gradCAM (visual explanations of the model's predictions). Here we use the 
 // tf.grad() method of TensorFlow.js which has the advantage that it can work on any model loaded 
 // into the platform. On the other hand, the method has a slower runtime. 
@@ -364,8 +369,10 @@ async function app() {
         }
     }
     
-  $('.model-progress-bar').hide()
-  $('.post-model').removeAttr("hidden")    
+  $('.model-progress-bar').hide();
+  $(".loading_saved_model").hide();
+
+  $('.post-model').removeAttr("hidden");    
   
   $('#select_file').change(function () {
       console.log("Analyzing...")
@@ -399,6 +406,5 @@ async function app() {
   })
   
 }
-
 
 app();
