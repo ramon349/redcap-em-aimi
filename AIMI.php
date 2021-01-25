@@ -122,12 +122,8 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
      */
     public function fetchSavedEntries()
     {
-//        list($prefix, $version) = ExternalModules::getParseModuleDirectoryPrefixAndVersion($this->getModuleDirectoryName());
-//        $check = ExternalModules::removeProjectSetting($prefix, $this->getProjectId(), 'abc');
-//        $check = ExternalModules::getProjectSettingsAsArray($prefix, $this->getProjectId());
         $existing = $this->getProjectSetting('aliases');
         return $existing;
-
     }
 
     public function removeConfig($alias)
@@ -142,7 +138,6 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
         }
         return $existing;
     }
-
 
     /**
      * @param $alias
@@ -194,6 +189,7 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
      * @param $uri github url to config.js of model
      * @return http_response_code 400 / 200
      */
+
     public function applyConfig($uri, $info)
     {
         try{
@@ -226,7 +222,6 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
 	// Sync raw data to Master Project , If Institution has agreement in place
 	public function syncMaster(){
 		$processed = array();
-
 		return $processed;
 	}
 	// Project Cron
@@ -246,9 +241,9 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
 				$response 	= $client->request('GET', $thisUrl, array(\GuzzleHttp\RequestOptions::SYNCHRONOUS => true));
 				$this->emDebug("running cron for $url on project $project_id");
 			}
-
 		}
-	}
+    }
+
     /**
      * @return Client
      */

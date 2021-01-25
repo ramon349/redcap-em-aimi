@@ -32,6 +32,7 @@ const AIMI = {
                 break;
         }
     },
+
     bind: () => {
         $('#new_model').on('change', function(){
             AIMI.clearFields('existing_model');
@@ -88,6 +89,7 @@ const AIMI = {
         $('#config_uri').val('https://github.com/example/model1/config.js')
         $('#path').val('CUSTOM');
     },
+
     triggerAlert: (msg, type) => {
         $("#alert p").text(msg);
 
@@ -99,6 +101,7 @@ const AIMI = {
         $('#alert').addClass(type);
         $('#alert').show();
     },
+    
     sendRequest: (payload, successCallback, failureCallback) => {
         $.ajax({
             data: payload,
@@ -112,6 +115,7 @@ const AIMI = {
                 failureCallback();
             })
     },
+    
     fetchVersions: (path) => {
         let payload = {
             'path' : path,
@@ -237,7 +241,6 @@ const AIMI = {
 
     },
 };
-
 
 $(function(){
     AIMI.bind();
