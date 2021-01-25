@@ -68,7 +68,7 @@ foreach($model_test_names as $options)
             <h4>Configuration options</h4>
             <blockquote id="block">
                 These configuration options are filled in from the selection above unless a custom configuration is selected, please confirm their
-                validity once selecting an option
+                validity once selecting an option, the following box contains the raw github URL for each shard file.
             </blockquote>
             <pre id="info" contentEditable="false">
             </pre>

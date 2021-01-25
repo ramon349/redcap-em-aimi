@@ -94,14 +94,17 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
             $this->setClient(new Client($this));
             $contents = $this->getClient()->request("GET", MODEL_REPO_ENDPOINT . '/' . $path);
             $payload = array();
+            $payload['info'] = array();
 
             if(!empty($contents)) {
                 foreach($contents as $entry) {
-                    if ($entry['name'] === 'config.js')
+                    if ($entry['name'] === 'config.js') {
                         $payload['config'] = $entry;
-                    elseif ($entry['name'] === 'redcap_config.json') {
+                    } elseif ($entry['name'] === 'redcap_config.json') {
                         $raw = file_get_contents($entry['download_url']);
-                        $payload['info'] = json_decode($raw, true);
+                        $payload['info'] = array_merge($payload['info'], json_decode($raw, true));
+                    } elseif (strpos($entry['name'],'.bin')) {
+                        $payload['info']['shards'][] = $entry['download_url'];
                     }
                 }
                 return $payload;
@@ -151,11 +154,19 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
         try{
             $alias = urldecode($alias); //store key as decoded alias
             $existing = $this->getProjectSetting('aliases');
+
+            if(!isset($existing))
+                $existing = array();
+
             if (array_key_exists($alias,$existing))
                 throw new \Exception("Error: alias: $alias already exists, skipping");
 
             $build = array_merge($existing, array($alias=>$config));
+
             $result = $this->setProjectSetting('aliases', $build); //Will overwrite existing aliases:
+
+            echo $result;
+
             http_response_code(200);//return 200 on success
 
         } catch (\Exception $e) {
@@ -183,10 +194,24 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
      * @param $uri github url to config.js of model
      * @return http_response_code 400 / 200
      */
-    public function applyConfig($uri)
+    public function applyConfig($uri, $info)
     {
         try{
-            if(isset($uri)) {
+            if(isset($uri) && isset($info)) {
+                foreach($info['shards'] as $ind => $shard) {
+                    $shard_binary = file_get_contents($shard);
+                    if(isset($shard_binary)) {
+                        $file_name = APP_PATH_TEMP . date('YmdHis') . "_shard_$ind";
+                        $result = file_put_contents($file_name, $shard_binary);
+
+                        if (!$result)
+                            throw new \Exception("Error: temp file not saved correctly for $uri");
+
+                    } else {
+                        throw new \Exception("Shard binary data could not be downloaded at $uri");
+                    }
+                }
+
                 $result = $this->setProjectSetting('config_uri', $uri);
                 http_response_code(200);//return 200 on success
             } else {

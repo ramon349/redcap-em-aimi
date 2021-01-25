@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             break;
         case 'saveConfig':
             $alias = filter_var($_POST['alias'], FILTER_SANITIZE_ENCODED);
-            $config = filter_var(json_encode($_POST['config']), FILTER_SANITIZE_STRING);
+//            $config = filter_var(json_encode($_POST['config']), FILTER_SANITIZE_STRING);
             $ret = $module->saveConfig($alias, $_POST['config']);
             echo json_encode($ret);
             break;
@@ -29,7 +29,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             break;
         case 'applyConfig':
             $uri = filter_var($_POST['uri'], FILTER_SANITIZE_STRING);
-            $ret = $module->applyConfig($uri);
+//            $info = filter_var($_POST['info'], FILTER_SANITIZE_STRING);
+            $info = $_POST['info'];
+//            $a = json_decode($info);
+            $ret = $module->applyConfig($uri, $info);
             echo json_encode($ret);
             break;
         case 'deleteConfig':

@@ -108,7 +108,8 @@ const AIMI = {
         })
             .done((res) => successCallback(res)) //remove column reference
             .fail((jqXHR, textStatus, errorThrown) => {
-                failureCallback()
+                console.log(textStatus, errorThrown);
+                failureCallback();
             })
     },
     fetchVersions: (path) => {
@@ -184,10 +185,12 @@ const AIMI = {
     },
 
     applyConfig: () => {
-        let uri = $('#config_uri').val();
+        const uri = $('#config_uri').val();
+        const info = JSON.parse($('#info').text());
         if(uri){
             let payload = {
                 'uri': uri,
+                'info': info,
                 'type' : 'applyConfig'
             };
             AIMI.sendRequest(payload,
@@ -212,7 +215,7 @@ const AIMI = {
                 'config': config
             };
             AIMI.sendRequest(payload,
-                ()=> AIMI.triggerAlert('Success : configuration saved', 'success'),
+                ()=> AIMI.triggerAlert('Success : configuration saved, please refresh', 'success'),
                 ()=> AIMI.triggerAlert('Error saving config: please contact administrator', 'alert')
             );
         } else {
