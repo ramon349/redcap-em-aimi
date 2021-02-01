@@ -194,15 +194,29 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
     {
         try{
             if(isset($uri) && isset($info)) {
-                foreach($info['shards'] as $ind => $shard) {
+                //NEED THE model.json as well as the config.json in this temp folder 
+                $convert_to_raw = str_replace("https://github.com", "https://raw.githubusercontent.com", $uri);
+                $raw_uri        = str_replace("blob/", "", $convert_to_raw);
+                $raw_model      = str_replace("config.js", "model.json", $raw_uri);
+
+                //and save the shards with the same name, so make the temp folder the unique thing
+                //TODO remember to delete it after
+                $temp_path = APP_PATH_TEMP ;//APP_PATH_TEMP .date('YmdHis')."/";  //hmmm might have to exec(chmod 777 or some shit)
+                
+                $model_files    = $info['shards'];
+                array_push($model_files, $raw_uri, $raw_model);
+                // $this->emDebug("hopping on to shard download loop", $model_files);
+
+                foreach($model_files as $ind => $shard) {
                     $shard_binary = file_get_contents($shard);
                     if(isset($shard_binary)) {
-                        $file_name = APP_PATH_TEMP . date('YmdHis') . "_shard_$ind";
-                        $result = file_put_contents($file_name, $shard_binary);
-
+                        $temp       = explode("/",$shard);
+                        $name       = array_pop($temp);
+                        $file_name  = $temp_path  . $name;
+                        $result     = file_put_contents($file_name, $shard_binary);
+                        $this->emDebug("saving file", $file_name );
                         if (!$result)
                             throw new \Exception("Error: temp file not saved correctly for $uri");
-
                     } else {
                         throw new \Exception("Shard binary data could not be downloaded at $uri");
                     }

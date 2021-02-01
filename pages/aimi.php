@@ -7,8 +7,12 @@ $selected_model = $module->getProjectSetting("config_uri");
 $selected_alias = $module->getProjectSetting("aliases");
 
 $placeholder_image      = $module->getUrl("assets/images/placeholder.jpg");
-$selected_model         = $module->getUrl("assets/scripts/config.js");
 $dedicated_upload_js    = $module->getUrl("assets/scripts/index_upload.js");
+
+$selected_model         = $module->getUrl("assets/scripts/config.js");
+
+$temp_shard_folder      = APP_PATH_TEMP . "config.js";
+$selected_model         = $temp_shard_folder;
 ?>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.2.9/dist/tf.min.js"></script>
 <style>
@@ -130,7 +134,7 @@ $dedicated_upload_js    = $module->getUrl("assets/scripts/index_upload.js");
     <div class="col-sm-11 my-3 row">
         
         <div class="col-sm-12 viewer_hd">
-            <h1>XrayFusion</h1>
+            <h1>XrayFusion<?=$temp_shard_folder?></h1>
             <p>Powered by the <a href="https://arxiv.org/abs/1901.07031" target="_blank">CheXpert</a> model. Diseases included are based on prevalence in reports and clinical relevance. </p>
 
             <div class="progress mb-2 model-progress-bar" style="">
@@ -173,7 +177,7 @@ $dedicated_upload_js    = $module->getUrl("assets/scripts/index_upload.js");
                 </div>
             </div>
 
-                
+            
             <div class="prediction-results col-sm-12">
                 <div id="prediction-list" style="width: 100%; padding-right: 20px">
                     <div class="row">
