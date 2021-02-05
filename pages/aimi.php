@@ -3,40 +3,37 @@ namespace Stanford\AIMI;
 /** @var \Stanford\AIMI\AIMI $module */
 
 $selected_model         = $module->getProjectSetting("config_uri");
-$selected_alias         = $module->getProjectSetting("aliases");
+$selected_alias         = $module->getProjectSetting("active_alias");
 
 $placeholder_image      = $module->getUrl("assets/images/placeholder.jpg");
 $dedicated_upload_js    = $module->getUrl("assets/scripts/index_upload.js");
 
 $url_configjs           = $module->getUrl("temp_config/config.js");
 $url_modeljson          = $module->getUrl("temp_config/model.json");
-// $url_redcapmodeljson    = $module->getUrl("temp_config/redcap_model.json");
-// $url_redcapconfigjs     = $module->getUrl("temp_config/redcap_config.js");
+$url_reddcapconfigjs    = $module->getUrl("temp_config/redcap_config.js");
+
+$url_configmodel        = $module->getUrl("pages/config_model.php");
 
 $em_save_path           = __DIR__ . '/../temp_config/';
-
-//save modified copy (with full url for shards) to redcap_model.json
-// $modeljson              = file_get_contents($url_modeljson);
-// $modelarr               = json_decode($modeljson, 1);
-
-// find the shard files referenced and put full url paths
-// $path_temp  = array();
-// foreach($modelarr["weightsManifest"][0]["paths"] as $bin){
-//     $path_temp[] = $module->getUrl("temp_config/".$bin);
-// }
-// $modelarr["weightsManifest"][0]["paths"] = $path_temp;
-
-// $file_modeljson         = $em_save_path ."redcap_model.json";
-// file_put_contents($file_modeljson , json_encode($modelarr)); 
-
-// modify the config file to pull "redcap_model.json" instead of "model.json" in the model_path, using full url
-$configjs               = file_get_contents($url_configjs);
-$configjs               = str_replace("model.json", $url_modeljson, $configjs);
+$file_redcapconfigjs    = $em_save_path ."redcap_config.js";
 $file_configjs          = $em_save_path ."config.js";
-file_put_contents($file_configjs, $configjs);
 
-// load the new config.js
-$selected_model         = $url_configjs;
+$selected_model         = null;
+
+$ajax_endpoint          = $module->getUrl("endpoints/ajaxHandler.php");
+if(file_exists($file_configjs)){
+    //If config.js exists in temp_config (means theres a new set of files) then save new redcap_model.js then delete temp_config
+ 
+    // Modify Config File to hold full URL to  "model.json" in the model_path
+    $temp_js                = file_get_contents($url_configjs);
+    $configjs               = str_replace("model.json", $url_modeljson, $temp_js);
+    file_put_contents($file_redcapconfigjs, $configjs);
+}
+
+if(file_exists($file_redcapconfigjs)){
+    // load the new config.js
+    $selected_model         = $url_reddcapconfigjs;
+}
 ?>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.2.9/dist/tf.min.js"></script>
 <style>
@@ -153,90 +150,106 @@ $selected_model         = $url_configjs;
         margin-bottom:8px;
     }
 </style>
-
 <main>
     <div class="col-sm-11 my-3 row">
-        
         <div class="col-sm-12 viewer_hd">
             <h1>XrayFusion<?=$temp_shard_folder?></h1>
             <p>Powered by the <a href="https://arxiv.org/abs/1901.07031" target="_blank">CheXpert</a> model. Diseases included are based on prevalence in reports and clinical relevance. </p>
-
-            <div class="progress mb-2 model-progress-bar" style="">
-                <div class="progress-bar pl-3" style="text-align: left">Loading Model</div>
-            </div>
-            <div class="loading_saved_model"><i class="fas fa-spinner fa-pulse"></i> Loading Stored Model</div>
+            <?php 
+            if(!$selected_model){
+            ?>
+                <div class="well alert-danger my-4">
+                    <h6>You must first configure/select a model and "apply to EM"*</h6>
+                    <p>Go to <a href='<?=$url_configmodel?>'>Config/Select Model</a> to do so.</p>
+                    <br>
+                    <p><em>*Once a model is applied, it may take a few minutes to compile, if you have already selected a model try refreshing this page in a 3 minutes</em></p>
+                </div>
+            <?php
+                }else{
+            ?>
+                <div class="progress mb-2 model-progress-bar" style="">
+                    <div class="progress-bar pl-3" style="text-align: left">Loading Model</div>
+                </div>
+                <div class="loading_saved_model"><i class="fas fa-spinner fa-pulse"></i> Loading Stored Model</div>
+            <?php
+                }
+            ?>
         </div>
-
-        <div class="post-model" hidden>
-            <div class="col-sm-12 row">
-                <div class="col-sm-4 main_image">
-                    <input type='file' onchange="readURL(this);" id="select_file" hidden accept="image/*"/>
-                    <img id="xray-image" src="<?=$placeholder_image?>" width="320" height="320" class="select-xray"/>
-                    <img id="xray-image1" src="<?=$placeholder_image?>" width="320" height="320" style=" display:none;"/>
-                    <div id="xray_canvas" style="display: none;" ></div>
-                    <button class="btn btn-info select-xray"><i class="fas fa-x-ray"></i> Select X-ray Image</button>
-                </div>
-                <div class="col-sm-8 model_details">
-                    <h5>ML Model Details:</h5>
-                    <ul>
-                    <li><b>Saved Model Alias:</b> <?=$selected_alias ?? "N/A" ?></li>
-                    <li><b>Model Path:</b> <?=$selected_model?></li>
-                    </ul>
-
-                    <h5>Explanations:</h5>
-                    <div id="xray_explain" style="display: none;">Predictive Regions for "progress_label" </div>
-                    <div id="grad_download" style="display: none;"></div>
-                </div>
-            </div>
-
-            <div class="col-sm-12 prediction_hdr">
-                <h4>Prediction</h4>
-                <div class="prediction_status">
-                    <div id="loading_indicator" hidden><i class="fas fa-spinner fa-pulse"></i> ANALYZING IMAGE ...</div>
-                    <div id="loading_explain" hidden><i class="fas fa-spinner fa-pulse"></i> LOADING IMAGE HEATMAP ...</div>
-                </div>
-                <div class="prediction_stats">
-                    <span id="memory" class="gpu-mem mr-3"></span>
-                    <span class="prediction-time"></span>
-                </div>
-            </div>
-
-            
-            <div class="prediction-results col-sm-12">
-                <div id="prediction-list" style="width: 100%; padding-right: 20px">
-                    <div class="row">
-                        <div class="col-3">
-                        </div>
-                        <div class="col-8" style="text-align: center;">
-                            <span class="label" style="float: left;">Very Unlikely</span>
-                            <span class="label">Neutral</span>
-                            <span class="label" style="float: right;">Very Likely</span>
-                        </div>
+        <?php 
+            if($selected_model){
+        ?>
+            <div class="post-model" hidden>
+                <div class="col-sm-12 row">
+                    <div class="col-sm-4 main_image">
+                        <input type='file' onchange="readURL(this);" id="select_file" hidden accept="image/*"/>
+                        <img id="xray-image" src="<?=$placeholder_image?>" width="320" height="320" class="select-xray"/>
+                        <img id="xray-image1" src="<?=$placeholder_image?>" width="320" height="320" style=" display:none;"/>
+                        <div id="xray_canvas" style="display: none;" ></div>
+                        <button class="btn btn-info select-xray"><i class="fas fa-x-ray"></i> Select X-ray Image</button>
                     </div>
-                    <div class="row prediction-template" hidden>
-                        <div class="col-3" style="top: -5px;">
-                            <span class="label"></span>
-                        </div>
-                        <div class="col-8">
-                            <div class="progress stats_progress mb-2" style="">
-                                <!-- <div class="progress-bar" role="progressbar"></div> -->
-                                <i class="fas fa-ambulance stats_progress_bar" role="progressbar"></i><span class="stats_gress_text">0%</span>
+                    <div class="col-sm-8 model_details">
+                        <h5>ML Model Details:</h5>
+                        <ul>
+                        <li><b>Saved Model Alias:</b> <?=$selected_alias ?? "N/A" ?></li>
+                        <li><b>Model Path:</b> <?=$selected_model?></li>
+                        </ul>
+
+                        <h5>Explanations:</h5>
+                        <div id="xray_explain" style="display: none;">Predictive Regions for "progress_label" </div>
+                        <div id="grad_download" style="display: none;"></div>
+                    </div>
+                </div>
+
+                <div class="col-sm-12 prediction_hdr">
+                    <h4>Prediction</h4>
+                    <div class="prediction_status">
+                        <div id="loading_indicator" hidden><i class="fas fa-spinner fa-pulse"></i> ANALYZING IMAGE ...</div>
+                        <div id="loading_explain" hidden><i class="fas fa-spinner fa-pulse"></i> LOADING IMAGE HEATMAP ...</div>
+                    </div>
+                    <div class="prediction_stats">
+                        <span id="memory" class="gpu-mem mr-3"></span>
+                        <span class="prediction-time"></span>
+                    </div>
+                </div>
+
+                
+                <div class="prediction-results col-sm-12">
+                    <div id="prediction-list" style="width: 100%; padding-right: 20px">
+                        <div class="row">
+                            <div class="col-3">
+                            </div>
+                            <div class="col-8" style="text-align: center;">
+                                <span class="label" style="float: left;">Very Unlikely</span>
+                                <span class="label">Neutral</span>
+                                <span class="label" style="float: right;">Very Likely</span>
                             </div>
                         </div>
-                        <div class="col-1" style="right: 20px; bottom: 2px;">
-                            <button class="Explain_btn" style="font-size: 12px;">Explain</button>
+                        <div class="row prediction-template" hidden>
+                            <div class="col-3" style="top: -5px;">
+                                <span class="label"></span>
+                            </div>
+                            <div class="col-8">
+                                <div class="progress stats_progress mb-2" style="">
+                                    <!-- <div class="progress-bar" role="progressbar"></div> -->
+                                    <i class="fas fa-ambulance stats_progress_bar" role="progressbar"></i><span class="stats_gress_text">0%</span>
+                                </div>
+                            </div>
+                            <div class="col-1" style="right: 20px; bottom: 2px;">
+                                <button class="Explain_btn" style="font-size: 12px;">Explain</button>
+                            </div>
                         </div>
                     </div>
+                    
                 </div>
-                
             </div>
-
-        </div>
+            <script>
+                var ajax_endpoint = "<?=$ajax_endpoint?>";
+            </script>
+            <script type="text/javascript" src="<?=$selected_model?>"></script>
+            <script type="text/javascript" src="<?=$dedicated_upload_js ?>"></script>
+        <?php
+            }
+        ?>
     </div>
 </main>
-<!-- <script src="npyjs.js" type="text/javascript"></script> -->
-<script type="text/javascript" src="<?=$selected_model?>"></script>
-<script type="text/javascript" src="<?=$dedicated_upload_js ?>"></script>
-<script>
 
-</script>

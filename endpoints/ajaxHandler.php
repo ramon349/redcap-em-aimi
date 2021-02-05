@@ -28,11 +28,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             echo json_encode($ret);
             break;
         case 'applyConfig':
-            $uri = filter_var($_POST['uri'], FILTER_SANITIZE_STRING);
-//            $info = filter_var($_POST['info'], FILTER_SANITIZE_STRING);
-            $info = $_POST['info'];
-//            $a = json_decode($info);
-            $ret = $module->applyConfig($uri, $info);
+            $uri    = filter_var($_POST['uri'], FILTER_SANITIZE_STRING);
+            $alias  = filter_var($_POST['alias'], FILTER_SANITIZE_STRING);
+            $info   = $_POST['info'];
+            $ret    = $module->applyConfig($uri, $info, $alias);
+            echo json_encode($ret);
+            break;
+        case 'clearTempFiles':
+            $ret = $module->clearTempFiles();
             echo json_encode($ret);
             break;
         case 'deleteConfig':

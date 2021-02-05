@@ -13,6 +13,8 @@ const AIMI = {
 
                 $('#version').attr('disabled', true);
                 $('#alias').attr('disabled', true); //disable fields of already saved configuration
+
+                $('#apply').attr("disabled", true);
                 $('#submit').attr('disabled', true);
                 $('#delete').attr('disabled', false);
                 break;
@@ -24,6 +26,7 @@ const AIMI = {
                 $('#alias').val('');
 
                 $('#version').attr('disabled', false);
+                $('#apply').attr("disabled", true);
                 $('#alias').attr('disabled', false); //enable fields
                 $('#submit').attr('disabled', false);
                 $('#delete').attr('disabled', true);
@@ -99,7 +102,7 @@ const AIMI = {
             $('#alert').removeClass('alert');
 
         $('#alert').addClass(type);
-        $('#alert').show();
+        $('#alert').slideDown();
     },
     
     sendRequest: (payload, successCallback, failureCallback) => {
@@ -146,7 +149,10 @@ const AIMI = {
             'type' : 'getExistingModelConfig'
         };
         AIMI.sendRequest(payload,
-            (res) => AIMI.populateExistingConfig(res,alias),
+            (res) => {
+                $("#apply").attr("disabled",false);
+                AIMI.populateExistingConfig(res,alias);
+            },
             () => AIMI.triggerAlert('Error fetching existing model configurations, please contact administrator', 'alert')
         );
     },
@@ -189,16 +195,26 @@ const AIMI = {
     },
 
     applyConfig: () => {
-        const uri = $('#config_uri').val();
-        const info = JSON.parse($('#info').text());
+        const uri   = $('#config_uri').val();
+        const alias = $('#alias').val();
+        const info  = JSON.parse($('#info').text());
+
+        //add loading spinner to button
+        $("#apply").addClass("loading");
+
         if(uri){
             let payload = {
                 'uri': uri,
                 'info': info,
-                'type' : 'applyConfig'
+                'type' : 'applyConfig',
+                'alias' : alias
             };
             AIMI.sendRequest(payload,
-                () => AIMI.triggerAlert('Success: configuration applied', 'success'),
+                () => {
+                    //remove loading
+                    $("#apply").removeClass("loading");
+                    AIMI.triggerAlert('Success: configuration applied', 'success');
+                },
                 () => AIMI.triggerAlert('Error applying config: please contact administrator', 'alert')
             );
         }
@@ -219,7 +235,10 @@ const AIMI = {
                 'config': config
             };
             AIMI.sendRequest(payload,
-                ()=> AIMI.triggerAlert('Success : configuration saved, please refresh', 'success'),
+                ()=> {
+                    $("#apply").attr("disabled",false);
+                    AIMI.triggerAlert('Success : configuration saved, please refresh', 'success');
+                },
                 ()=> AIMI.triggerAlert('Error saving config: please contact administrator', 'alert')
             );
         } else {

@@ -1,8 +1,8 @@
 // Import model configurations from config.json
 var MODEL_CONFIGS = config_data;
 
-console.log(MODEL_CONFIGS)
-console.log(MODEL_CONFIGS.RGB_COLORMAP)
+console.log("MODEL_CONFIGS", MODEL_CONFIGS)
+// console.log(MODEL_CONFIGS.RGB_COLORMAP)
 
 // Get diseases that we wish to display. Here we have chosen 7 out of the model's original 14
 // outputs, based on clinical relevance and prevalence in reports. 
@@ -54,13 +54,10 @@ async function loadModel() {
     try {
         $(".loading_saved_model").show();
         model = await tf.loadLayersModel('indexeddb://current-model');
-        console.log("Saved model loaded from local indexeddb");
     } catch (error) {
         $(".loading_saved_model").hide();
         $('.model-progress-bar').show();
 
-        console.log("model.json",MODEL_CONFIGS.model_path);
-        
         model = await tf.loadLayersModel(MODEL_CONFIGS.model_path, {'onProgress':function(p){
             $(".model-progress-bar .progress-bar").css("width",`${Math.round(p * 100)}%`);
             $(".model-progress-bar .stats_progress_bar").css("left",`${Math.round(p * 100)}%`);
@@ -68,8 +65,10 @@ async function loadModel() {
         }});
         await model.save('indexeddb://current-model');
         $(".model-progress-bar .progress").text(`Warming Up ...`);
-        console.log("model not found in local indexeddb, load from cached path");
+        console.log("model not found in local indexeddb, load from cached path", MODEL_CONFIGS.model_path);
     }
+    console.log("model saved now clean the temp_confg folder");
+    clearTempFiles();
     console.log(`# of tensors just after LOAD: ${tf.memory().numTensors}` );
     await sleep(MODEL_CONFIGS.GUI_WAITTIME);
 
@@ -411,4 +410,18 @@ async function app() {
   
 }
 
+function clearTempFiles(){
+    $.ajax({
+        url: ajax_endpoint,
+        method: 'POST',
+        data: {
+            "type": "clearTempFiles",
+        },
+        dataType: 'json'
+    }).done(function(data) {
+        console.log("success?",data)
+    }).fail(function(e){
+        console.log(e);
+    });
+}
 app();
