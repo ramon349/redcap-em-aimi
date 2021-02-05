@@ -201,6 +201,8 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
                 $raw_model      = str_replace("config.js", "model.json", $raw_uri);
                 $em_save_path = __DIR__ . '/temp_config';
 
+                $this->emDebug("em_save_path", $em_save_path);
+
                 if(! is_dir($em_save_path))
                     mkdir($em_save_path);
 
@@ -232,6 +234,10 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
             $this->emError($e->getMessage());
             http_response_code(400);
         }
+    }
+
+    public function modifyLocalPaths(){
+        
     }
 
 	// Sync raw data to Master Project , If Institution has agreement in place

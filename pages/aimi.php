@@ -2,17 +2,41 @@
 namespace Stanford\AIMI;
 /** @var \Stanford\AIMI\AIMI $module */
 
-$selected_model = "https://raw.githubusercontent.com/susom/redcap-aimi-models/main/Stanford%20Imaging%201/version_1.0/config.js";
-$selected_model = $module->getProjectSetting("config_uri");
-$selected_alias = $module->getProjectSetting("aliases");
+$selected_model         = $module->getProjectSetting("config_uri");
+$selected_alias         = $module->getProjectSetting("aliases");
 
 $placeholder_image      = $module->getUrl("assets/images/placeholder.jpg");
 $dedicated_upload_js    = $module->getUrl("assets/scripts/index_upload.js");
 
-$selected_model         = $module->getUrl("assets/scripts/config.js");
+$url_configjs           = $module->getUrl("temp_config/config.js");
+$url_modeljson          = $module->getUrl("temp_config/model.json");
+// $url_redcapmodeljson    = $module->getUrl("temp_config/redcap_model.json");
+// $url_redcapconfigjs     = $module->getUrl("temp_config/redcap_config.js");
 
-$temp_shard_folder      = APP_PATH_TEMP . "config.js";
-$selected_model         = $temp_shard_folder;
+$em_save_path           = __DIR__ . '/../temp_config/';
+
+//save modified copy (with full url for shards) to redcap_model.json
+// $modeljson              = file_get_contents($url_modeljson);
+// $modelarr               = json_decode($modeljson, 1);
+
+// find the shard files referenced and put full url paths
+// $path_temp  = array();
+// foreach($modelarr["weightsManifest"][0]["paths"] as $bin){
+//     $path_temp[] = $module->getUrl("temp_config/".$bin);
+// }
+// $modelarr["weightsManifest"][0]["paths"] = $path_temp;
+
+// $file_modeljson         = $em_save_path ."redcap_model.json";
+// file_put_contents($file_modeljson , json_encode($modelarr)); 
+
+// modify the config file to pull "redcap_model.json" instead of "model.json" in the model_path, using full url
+$configjs               = file_get_contents($url_configjs);
+$configjs               = str_replace("model.json", $url_modeljson, $configjs);
+$file_configjs          = $em_save_path ."config.js";
+file_put_contents($file_configjs, $configjs);
+
+// load the new config.js
+$selected_model         = $url_configjs;
 ?>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.2.9/dist/tf.min.js"></script>
 <style>
@@ -212,7 +236,7 @@ $selected_model         = $temp_shard_folder;
 </main>
 <!-- <script src="npyjs.js" type="text/javascript"></script> -->
 <script type="text/javascript" src="<?=$selected_model?>"></script>
-<script src="<?=$dedicated_upload_js ?>"></script>
+<script type="text/javascript" src="<?=$dedicated_upload_js ?>"></script>
 <script>
 
 </script>

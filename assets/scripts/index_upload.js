@@ -1,5 +1,6 @@
 // Import model configurations from config.json
 var MODEL_CONFIGS = config_data;
+
 console.log(MODEL_CONFIGS)
 console.log(MODEL_CONFIGS.RGB_COLORMAP)
 
@@ -10,7 +11,7 @@ for (var i = 0; i < MODEL_CONFIGS.labels.length; i++) {
     disease_index = MODEL_CONFIGS.all_labels.indexOf(MODEL_CONFIGS.labels[i]);
     diseases_needed_index.push(disease_index);
 }
-console.log(diseases_needed_index);
+// console.log(diseases_needed_index);
 
 // Declare any custom network layers needed here (as classes). When converting the original Stanford CheXpert 
 // model, we required a Lambda layer that does not yet exist in tensorflow.js by default. 
@@ -57,6 +58,9 @@ async function loadModel() {
     } catch (error) {
         $(".loading_saved_model").hide();
         $('.model-progress-bar').show();
+
+        console.log("model.json",MODEL_CONFIGS.model_path);
+        
         model = await tf.loadLayersModel(MODEL_CONFIGS.model_path, {'onProgress':function(p){
             $(".model-progress-bar .progress-bar").css("width",`${Math.round(p * 100)}%`);
             $(".model-progress-bar .stats_progress_bar").css("left",`${Math.round(p * 100)}%`);
