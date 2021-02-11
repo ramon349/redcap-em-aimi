@@ -12,13 +12,6 @@ $url_configjs           = $module->getUrl("temp_config/config.js");
 $url_modeljson          = $module->getUrl("temp_config/model.json");
 $url_reddcapconfigjs    = $module->getUrl("temp_config/redcap_config.js");
 
-<<<<<<< HEAD
-$temp_shard_folder      = APP_PATH_TEMP . "config.js";
-
-$temp_model_folder = APP_PATH_TEMP . 'model.json';
-
-$selected_model         = $temp_shard_folder;
-=======
 $url_configmodel        = $module->getUrl("pages/config_model.php");
 
 $em_save_path           = __DIR__ . '/../temp_config/';
@@ -41,7 +34,6 @@ if(file_exists($file_redcapconfigjs)){
     // load the new config.js
     $selected_model         = $url_reddcapconfigjs;
 }
->>>>>>> 1605962e0697e39abdc2e09c8fb6b1ed76199fe7
 ?>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.2.9/dist/tf.min.js"></script>
 <style>
@@ -160,10 +152,6 @@ if(file_exists($file_redcapconfigjs)){
 </style>
 <main>
     <div class="col-sm-11 my-3 row">
-<<<<<<< HEAD
-
-=======
->>>>>>> 1605962e0697e39abdc2e09c8fb6b1ed76199fe7
         <div class="col-sm-12 viewer_hd">
             <h1>XrayFusion<?=$temp_shard_folder?></h1>
             <p>Powered by the <a href="https://arxiv.org/abs/1901.07031" target="_blank">CheXpert</a> model. Diseases included are based on prevalence in reports and clinical relevance. </p>
@@ -212,25 +200,11 @@ if(file_exists($file_redcapconfigjs)){
                     </div>
                 </div>
 
-<<<<<<< HEAD
-
-            <div class="prediction-results col-sm-12">
-                <div id="prediction-list" style="width: 100%; padding-right: 20px">
-                    <div class="row">
-                        <div class="col-3">
-                        </div>
-                        <div class="col-8" style="text-align: center;">
-                            <span class="label" style="float: left;">Very Unlikely</span>
-                            <span class="label">Neutral</span>
-                            <span class="label" style="float: right;">Very Likely</span>
-                        </div>
-=======
                 <div class="col-sm-12 prediction_hdr">
                     <h4>Prediction</h4>
                     <div class="prediction_status">
                         <div id="loading_indicator" hidden><i class="fas fa-spinner fa-pulse"></i> ANALYZING IMAGE ...</div>
                         <div id="loading_explain" hidden><i class="fas fa-spinner fa-pulse"></i> LOADING IMAGE HEATMAP ...</div>
->>>>>>> 1605962e0697e39abdc2e09c8fb6b1ed76199fe7
                     </div>
                     <div class="prediction_stats">
                         <span id="memory" class="gpu-mem mr-3"></span>
@@ -267,10 +241,6 @@ if(file_exists($file_redcapconfigjs)){
                     </div>
                     
                 </div>
-<<<<<<< HEAD
-
-=======
->>>>>>> 1605962e0697e39abdc2e09c8fb6b1ed76199fe7
             </div>
             <script>
                 var ajax_endpoint = "<?=$ajax_endpoint?>";
@@ -282,13 +252,10 @@ if(file_exists($file_redcapconfigjs)){
         ?>
     </div>
 </main>
-<<<<<<< HEAD
 <!-- <script src="npyjs.js" type="text/javascript"></script> -->
 <!--<script type="text/javascript" src="--><?//=$selected_model?><!--"></script>-->
 <!--<script type="text/javascript" src="--><?php //echo $temp_shard_folder ?><!--"></script>-->
-<script src="<?php echo $module->getUrl('temp_config/config.js') ?>"></script>
+<script src="<?=$selected_model?>"></script>
 <script src="<?=$dedicated_upload_js ?>"></script>
 <script>
-=======
->>>>>>> 1605962e0697e39abdc2e09c8fb6b1ed76199fe7
 
