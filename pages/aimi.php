@@ -12,6 +12,9 @@ $dedicated_upload_js    = $module->getUrl("assets/scripts/index_upload.js");
 $selected_model         = $module->getUrl("assets/scripts/config.js");
 
 $temp_shard_folder      = APP_PATH_TEMP . "config.js";
+
+$temp_model_folder = APP_PATH_TEMP . 'model.json';
+
 $selected_model         = $temp_shard_folder;
 ?>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.2.9/dist/tf.min.js"></script>
@@ -31,7 +34,7 @@ $selected_model         = $temp_shard_folder;
     #xray-image1 {
         border:2px solid #000;
     }
-    
+
     .select-xray:hover {
         background: #10707f;
         outline: none;
@@ -87,7 +90,7 @@ $selected_model         = $temp_shard_folder;
         display:inline-block;
     }
     .prediction_status{
-        margin-left:10px; 
+        margin-left:10px;
     }
     .prediction_stats{
         float:right;
@@ -103,7 +106,7 @@ $selected_model         = $temp_shard_folder;
         text-align:center;
     }
     .model_details{
-        padding-top:30px; 
+        padding-top:30px;
     }
     .model_details ul{
         list-style:none;
@@ -119,9 +122,9 @@ $selected_model         = $temp_shard_folder;
         display:none;
         font-size:150%;
         margin:10px 0;
-    }   
+    }
     .model-progress-bar{
-        font-size: medium; 
+        font-size: medium;
         height: 30px;
     }
     #xray_explain{
@@ -132,7 +135,7 @@ $selected_model         = $temp_shard_folder;
 
 <main>
     <div class="col-sm-11 my-3 row">
-        
+
         <div class="col-sm-12 viewer_hd">
             <h1>XrayFusion<?=$temp_shard_folder?></h1>
             <p>Powered by the <a href="https://arxiv.org/abs/1901.07031" target="_blank">CheXpert</a> model. Diseases included are based on prevalence in reports and clinical relevance. </p>
@@ -177,7 +180,7 @@ $selected_model         = $temp_shard_folder;
                 </div>
             </div>
 
-            
+
             <div class="prediction-results col-sm-12">
                 <div id="prediction-list" style="width: 100%; padding-right: 20px">
                     <div class="row">
@@ -204,14 +207,16 @@ $selected_model         = $temp_shard_folder;
                         </div>
                     </div>
                 </div>
-                
+
             </div>
 
         </div>
     </div>
 </main>
 <!-- <script src="npyjs.js" type="text/javascript"></script> -->
-<script type="text/javascript" src="<?=$selected_model?>"></script>
+<!--<script type="text/javascript" src="--><?//=$selected_model?><!--"></script>-->
+<!--<script type="text/javascript" src="--><?php //echo $temp_shard_folder ?><!--"></script>-->
+<script src="<?php echo $module->getUrl('temp_config/config.js') ?>"></script>
 <script src="<?=$dedicated_upload_js ?>"></script>
 <script>
 
