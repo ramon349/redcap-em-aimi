@@ -15,6 +15,7 @@
 # Operating system garbage
 .DS_Store
 [Tt]humbs.db
+temp_config
 
 # Emacs backup files
 *~

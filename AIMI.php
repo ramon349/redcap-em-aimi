@@ -134,6 +134,18 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
         if (array_key_exists($alias,$existing)) {
             unset($existing[$alias]);
             $result = $this->setProjectSetting('aliases', $existing);
+            
+            $active_alias = $this->getProjectSetting("active_alias");
+            if($active_alias == $alias){
+                //deleted model was the active one so remove from active
+                //and delete the redcap_config.js
+                $result = $this->setProjectSetting('active_alias', null);
+
+                $em_del_path = __DIR__ . '/temp_config/redcap_config.js';
+                unlink($em_del_path);
+
+                $this->emDebug("active alias/model deleted");
+            }
         } else {
             $this->emError('Error removing alias, alias not found');
         }
@@ -191,7 +203,7 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
      * @return http_response_code 400 / 200
      */
 
-    public function applyConfig($uri, $info)
+    public function applyConfig($uri, $info, $active_alias)
     {
         try{
             if(isset($uri) && isset($info)) {
@@ -200,6 +212,8 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
                 $raw_uri        = str_replace("blob/", "", $convert_to_raw);
                 $raw_model      = str_replace("config.js", "model.json", $raw_uri);
                 $em_save_path = __DIR__ . '/temp_config';
+
+                // $this->emDebug("em_save_path", $em_save_path);
 
                 if(! is_dir($em_save_path))
                     mkdir($em_save_path);
@@ -222,7 +236,7 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
                         throw new \Exception("Shard binary data could not be downloaded at $uri");
                     }
                 }
-
+                $result = $this->setProjectSetting('active_alias', $active_alias);
                 $result = $this->setProjectSetting('config_uri', $uri);
                 http_response_code(200);//return 200 on success
             } else {
@@ -232,6 +246,27 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
             $this->emError($e->getMessage());
             http_response_code(400);
         }
+    }
+
+    public function clearTempFiles(){
+        //clear all from "temp_config" except for "redcap_config.js"
+        $model_temp_path    = __DIR__ . '/temp_config/*';
+        $save_file          = __DIR__ . '/temp_config/redcap_config.js';
+        $files_to_keep      = array( $save_file );
+        
+        $dirList = glob($model_temp_path);
+        foreach ($dirList as $file) {
+            if (!in_array($file, $files_to_keep)) {
+                if (is_dir($file)) {
+                    $this->emDebug("is dir remove $file");
+                    rmdir($file);
+                } else {
+                    $this->emDebug("is file remove $file");
+                    unlink($file);
+                }
+            }
+        }
+        return;
     }
 
 	// Sync raw data to Master Project , If Institution has agreement in place

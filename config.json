@@ -45,7 +45,7 @@
 		        "show-header-and-footer": true
 			},
 			{
-		        "name": "Select/Config Model",
+		        "name": "Config/Select Model",
 		        "icon": "fas fa-laptop-code",
 		        "url" : "pages/config_model.php",
 		        "show-header-and-footer": true
