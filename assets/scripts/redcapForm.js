@@ -342,9 +342,7 @@ RCForm = {
                 }
 
                 if(field.metadata["element_type"] =="checkbox"){
-                    console.log("what the fuck happened now?", field_value);
                     for (var c in field_value){
-                        console.log("pissing me off here", field_name, field_value);
                         if(field_value[c]["checked"]){
                             var kv = {};
                             var chkval  = field_value[c]["val"];
