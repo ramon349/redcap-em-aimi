@@ -2,41 +2,83 @@
 namespace Stanford\AIMI;
 /** @var \Stanford\AIMI\AIMI $module */
 
+//Active Model Meta Data
 $selected_model         = $module->getProjectSetting("config_uri");
 $selected_alias         = $module->getProjectSetting("active_alias");
 
+//Some Static URLS
 $placeholder_image      = $module->getUrl("assets/images/placeholder.jpg");
 $dedicated_upload_js    = $module->getUrl("assets/scripts/index_upload.js");
+$url_configmodel        = $module->getUrl("pages/config_model.php");
+$ajax_endpoint          = $module->getUrl("endpoints/ajaxHandler.php");
 
+//Should be including recap_config.js, if not exist or new model active, will need to create new
+$selected_model         = null;
+$url_reddcapconfigjs    = $module->getUrl("temp_config/redcap_config.js");
 $url_configjs           = $module->getUrl("temp_config/config.js");
 $url_modeljson          = $module->getUrl("temp_config/model.json");
-$url_reddcapconfigjs    = $module->getUrl("temp_config/redcap_config.js");
-
-$url_configmodel        = $module->getUrl("pages/config_model.php");
 
 $em_save_path           = __DIR__ . '/../temp_config/';
-$file_redcapconfigjs    = $em_save_path ."redcap_config.js";
 $file_configjs          = $em_save_path ."config.js";
-
-$selected_model         = null;
-
-$ajax_endpoint          = $module->getUrl("endpoints/ajaxHandler.php");
+$file_redcapconfigjs    = $em_save_path ."redcap_config.js";
 if(file_exists($file_configjs)){
-    //If config.js exists in temp_config (means theres a new set of files) then save new redcap_model.js then delete temp_config
- 
-    // Modify Config File to hold full URL to  "model.json" in the model_path
+    //If config.js exists in temp_config (means theres a new set of files)    
+    //Modify Config File to hold full URL to  "model.json" in the model_path
     $temp_js                = file_get_contents($url_configjs);
     $configjs               = str_replace("model.json", $url_modeljson, $temp_js);
+    
+    //then save new redcap_model.js then delete temp_config (Done After Model Cached from JS Ajax call)
     file_put_contents($file_redcapconfigjs, $configjs);
 }
 
+//Set active model
 if(file_exists($file_redcapconfigjs)){
-    // load the new config.js
     $selected_model         = $url_reddcapconfigjs;
 }
+
+
+$css_sources = [
+    "https://use.fontawesome.com/releases/v5.8.2/css/all.css",
+    "https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap",
+    // "https://unpkg.com/bootstrap-material-design@4.1.1/dist/css/bootstrap-material-design.min.css",
+    // $module->getUrl('assets/styles/pickadate.min.css',true,true)
+];
+
+// Additional javascript sources
+$js_sources    = [
+    "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.2.9/dist/tf.min.js",
+    "https://unpkg.com/popper.js@1.12.6/dist/umd/popper.js",
+    // "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js",
+    // "https://unpkg.com/bootstrap-material-design@4.1.1/dist/js/bootstrap-material-design.js",
+    $module->getUrl("assets/scripts/templates.js", true, true),
+    // $module->getUrl("assets/scripts/jquery341_datepicker.min.js",true, true),
+    $module->getUrl('assets/scripts/redcapForm.js', true, true),
+];
+
+$metadata   = $module->getMetadata("bs");
+$complete   = array_pop($metadata); //remove compeleted
+$exclude    = array($complete["field_name"]);
+
+$rcjs_renderer_config = [
+    'exclude_fields'   => array($exclude)
+   ,'readonly'         => array("record_id", "base64_image", "model_results")
+   ,'metadata'         => $metadata
+];
+
+//Include Asset Files
+foreach($css_sources as $css){
+    echo '<link rel="stylesheet" href="'.$css.'" crossorigin="anonymous">';
+}
+foreach($js_sources as $js){
+    echo '<script src="'.$js.'" crossorigin="anonymous"></script>';
+}
 ?>
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.2.9/dist/tf.min.js"></script>
 <style>
+    
+    #redcap_form{
+        /* display:none; */
+    }
+
     .select-xray {
         display:inline-block;
         margin:0 auto;
@@ -98,6 +140,10 @@ if(file_exists($file_redcapconfigjs)){
         -moz-transform:scale(1.3,1.3);
     }
 
+    .progress{
+        height: 1rem;
+        border-radius: .25rem;
+    }
     .prediction_hdr {
         margin:40px 0 20px;
         border-bottom:1px solid #999;
@@ -148,6 +194,25 @@ if(file_exists($file_redcapconfigjs)){
     #xray_explain{
         font-size:120%;
         margin-bottom:8px;
+    }
+
+    span.element_label{
+        font-weight:600;
+    }
+
+    blockquote.alert{
+        border:0 !important;
+    }
+    blockquote span.element_label{
+        font-weight:normal;
+    }
+
+
+    #saveRecord .fas{
+        display:none;
+    }
+    #saveRecord.loading .fas{
+        display:inline-block;
     }
 </style>
 <main>
@@ -250,12 +315,25 @@ if(file_exists($file_redcapconfigjs)){
         <?php
             }
         ?>
+
+        <hr>
+
+        <div id="redcap_container">
+
+        </div>
     </div>
 </main>
-<!-- <script src="npyjs.js" type="text/javascript"></script> -->
-<!--<script type="text/javascript" src="--><?//=$selected_model?><!--"></script>-->
-<!--<script type="text/javascript" src="--><?php //echo $temp_shard_folder ?><!--"></script>-->
-<script src="<?=$selected_model?>"></script>
-<script src="<?=$dedicated_upload_js ?>"></script>
 <script>
+    $(document).ready(function(){
+        //pass info required to download project's survey metadata and build html
+        // this puts the form into the DOM so must happen before the RCTF work
+        RCForm.init(<?=json_encode($rcjs_renderer_config);?>, $("#redcap_container"), '<?=$ajax_endpoint?>' );
 
+        //form inits disabled
+        $('.select-xray').click(function() {
+            //form inits disabled
+            RCForm.enableForm();
+            RCForm.clearForm();
+        });
+    });
+</script>

@@ -217,6 +217,8 @@ async function get_preds(webcam_elemnt, model){
         }
     }
     
+    $("#model_results").val(data);
+    $("#base64_image").val($("#xray-image").attr("src"));
     tf.dispose(data);
 
     console.log(`# of tensors after Prediction: ${tf.memory().numTensors}` );

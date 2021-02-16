@@ -7,13 +7,11 @@ use Sabre\DAV\Exception;
 require_once "emLoggerTrait.php";
 require_once "classes/Client.php";
 require_once "classes/Model.php";
+require_once "REDCapJsRenderer.php";
 
-
-//CONST MODEL_REPO_ENDPOINT = 'https://api.github.com/repos/susom/redcap-aimi-models/git/trees/main';
 CONST MODEL_REPO_ENDPOINT = 'https://api.github.com/repos/susom/redcap-aimi-models/contents';
 
 class AIMI extends \ExternalModules\AbstractExternalModule {
-
     use emLoggerTrait;
 
     /** @var Client $client */
@@ -21,9 +19,19 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
 
     public function __construct() {
 		parent::__construct();
-
-		// Other code to run when object is instantiated
+        $this->RCJS 	= new \Stanford\AIMI\REDCapJsRenderer($this);
 	}
+
+    //Pass through to REDCapJsRenderer Class
+    public function getMetadata($something){
+        return $this->RCJS->getMetadata($something);
+    }
+    public function saveData($data){
+        return $this->RCJS->saveData($data);
+    }
+    public function getValidFields($project_id, $event_id, $form_name){
+        return $this->RCJS->getValidFields($project_id, $event_id, $form_name);
+    }
 
     /**
      * Fetches all models of type dir
