@@ -3,7 +3,7 @@ namespace Stanford\AIMI;
 /** @var \Stanford\AIMI\AIMI $module */
 
 //Active Model Meta Data
-$selected_model         = $module->getProjectSetting("config_uri");
+$selected_config        = $module->getProjectSetting("config_uri");
 $selected_alias         = $module->getProjectSetting("active_alias");
 
 //Some Static URLS
@@ -61,7 +61,7 @@ $exclude    = array($complete["field_name"]);
 
 $rcjs_renderer_config = [
     'exclude_fields'   => array($exclude)
-   ,'readonly'         => array("record_id", "base64_image", "model_results")
+   ,'readonly'         => array("record_id", "base64_image", "model_results", "model_config")
    ,'metadata'         => $metadata
 ];
 
@@ -207,7 +207,6 @@ foreach($js_sources as $js){
         font-weight:normal;
     }
 
-
     #saveRecord .fas{
         display:none;
     }
@@ -256,7 +255,7 @@ foreach($js_sources as $js){
                         <h5>ML Model Details:</h5>
                         <ul>
                         <li><b>Saved Model Alias:</b> <?=$selected_alias ?? "N/A" ?></li>
-                        <li><b>Model Path:</b> <?=$selected_model?></li>
+                        <li><b>Model Path:</b> <span id="selected_config"><?=$selected_config?></span></li>
                         </ul>
 
                         <h5>Explanations:</h5>

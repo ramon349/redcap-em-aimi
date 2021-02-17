@@ -44,6 +44,7 @@ class REDCapJsRenderer
 
         $valid_fields   = self::getValidFields($project_id,$event_id,$form_name);
         $saveFields     = [];
+        $edit           = false;
         foreach ($fields as $field) {
             $field_name     = $field["name"];
             $field_values   = $field["value"];
@@ -60,19 +61,64 @@ class REDCapJsRenderer
             }
 
             $saveFields[$field_name] = $field_values;
+
+            if($field_name == "record_id"){
+                $edit = true;
+            }
         }
 
-        $record = $this->getNextRecordId($project_id);
-        $saveFields["record_id"] = $record;
-        
+        if(!$edit){
+            $record = $this->getNextRecordId($project_id);
+            $saveFields["record_id"] = $record;
+            $this->postBackStanford($saveFields);
+        }
         $saveData = array(
             $saveFields
         );
         $result = \REDCap::saveData($project_id,'json', json_encode($saveData), 'overwrite');
         $result["record_id"] = $record;
 
+
+
+
         return $result;
         // $hash = isset($data['hash']@$data['hash'];
+    }
+
+
+    public function postBackStanford($fields){
+        $partner_token  = $this->module->getProjectSetting("stanford_partner_token");
+        $api_url        = $this->module->getProjectSetting("stanford_api_endpoint");
+
+        $base64_image   = $fields["base64_image"];
+        $model_results  = $fields["model_results"];;
+        $model_config   = $fields["model_config"];;
+        
+        if(!empty($partner_token) && !empty($api_url)){
+            $data 			= array(
+                "partner_token" 	=> $partner_token,
+                "base64_image"      => $base64_image,
+                "model_results"     => $model_results,
+                "model_config"      => $model_config
+            );
+    
+            $ch             = curl_init($api_url);
+            $header_data    = array();
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $header_data);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 105200);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HEADER, 0);
+            curl_setopt($ch, CURLOPT_VERBOSE, 0);
+            
+            $info 	= curl_getinfo($ch);
+            $result = curl_exec($ch);
+            curl_close($ch);
+            return;
+        }
     }
 
 

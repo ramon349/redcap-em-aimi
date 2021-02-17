@@ -47,8 +47,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         case "saveRecord":
             $fields = $_POST["fields"];
             $result = $module->saveData($fields);
-
-            $module->emDebug("wtf", $result, json_encode($result));
             echo json_encode($result);
             break;
         default:

@@ -69,7 +69,19 @@
 		},
         {
             "key": "config_uri",
-            "name": "<b>Path to the model configuration javascript file</b><br> ",
+            "name": "<b>Path to the model configuration javascript file</b>",
+            "required": false,
+            "type": "text"
+        },
+		{
+            "key": "stanford_api_endpoint",
+            "name": "<b>API endpoint for Stanford Project</b> ",
+            "required": false,
+            "type": "text"
+        },
+		{
+            "key": "stanford_partner_token",
+            "name": "<b>Unique Stanford Partner Token</b>",
             "required": false,
             "type": "text"
         }
