@@ -1,5 +1,5 @@
 {
-	"name": "Project EM : A.I. Based Medical Image Diagnosis ",
+	"name": "Project EM : A.I. Based Medical Image Diagnosis",
 
 	"namespace": "Stanford\\AIMI",
 
@@ -39,6 +39,12 @@
 	"links": {
 		"project": [
 			{
+		        "name": "Stanford AIMI Instructions",
+		        "icon": "fas fa-arrow-alt-circle-right",
+		        "url" : "pages/instructions.php",
+		        "show-header-and-footer": true
+			},
+			{
 		        "name": "Run Model",
 		        "icon": "fas fa-arrow-alt-circle-right",
 		        "url" : "pages/aimi.php",
@@ -67,12 +73,6 @@
 			"required": false,
 			"type": "checkbox"
 		},
-        {
-            "key": "config_uri",
-            "name": "<b>Path to the model configuration javascript file</b>",
-            "required": false,
-            "type": "text"
-        },
 		{
             "key": "stanford_api_endpoint",
             "name": "<b>API endpoint for Stanford Project</b> ",

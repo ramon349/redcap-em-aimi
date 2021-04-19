@@ -217,6 +217,14 @@ async function get_preds(webcam_elemnt, model){
         }
     }
     
+    var top_val     =  Math.max.apply(Math, data);
+    var top_probs   = [];
+    for (var i = data.length - 1; i >= 0; i--) {
+        if (data[i] === top_val) {
+            top_probs.unshift(MODEL_CONFIGS.labels[i] + " : " + Math.round(top_val*100) + "%");
+        }
+    }
+    $("#model_top_predictions").val(top_probs);
     $("#model_results").val(data);
     $("#base64_image").val($("#xray-image").attr("src"));
     $("#model_config").val($("#selected_config").text());

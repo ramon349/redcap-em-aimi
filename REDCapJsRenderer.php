@@ -77,29 +77,28 @@ class REDCapJsRenderer
         );
         $result = \REDCap::saveData($project_id,'json', json_encode($saveData), 'overwrite');
         $result["record_id"] = $record;
-
-
-
-
+        
         return $result;
         // $hash = isset($data['hash']@$data['hash'];
     }
 
 
     public function postBackStanford($fields){
-        $partner_token  = $this->module->getProjectSetting("stanford_partner_token");
-        $api_url        = $this->module->getProjectSetting("stanford_api_endpoint");
+        $partner_token          = $this->module->getProjectSetting("stanford_partner_token");
+        $api_url                = $this->module->getProjectSetting("stanford_api_endpoint");
 
-        $base64_image   = $fields["base64_image"];
-        $model_results  = $fields["model_results"];;
-        $model_config   = $fields["model_config"];;
+        $model_config           = $fields["model_config"];
+        $partner_ground_truth   = $fields["partner_ground_truth"];
+        $model_results          = $fields["model_results"];
+        $model_top_predictions  = $fields["model_top_predictions"];;
         
         if(!empty($partner_token) && !empty($api_url)){
-            $data 			= array(
-                "partner_token" 	=> $partner_token,
-                "base64_image"      => $base64_image,
-                "model_results"     => $model_results,
-                "model_config"      => $model_config
+            $data 			    = array(
+                "partner_token" 	    => $partner_token,
+                "model_config"          => $model_config,
+                "model_results"         => $model_results,
+                "model_top_predictions" => $model_top_predictions,
+                "partner_ground_truth"  => $partner_ground_truth
             );
     
             $ch             = curl_init($api_url);
