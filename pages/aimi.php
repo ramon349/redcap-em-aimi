@@ -40,18 +40,13 @@ if(file_exists($file_redcapconfigjs)){
 $css_sources = [
     "https://use.fontawesome.com/releases/v5.8.2/css/all.css",
     "https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap",
-    // "https://unpkg.com/bootstrap-material-design@4.1.1/dist/css/bootstrap-material-design.min.css",
-    // $module->getUrl('assets/styles/pickadate.min.css',true,true)
 ];
 
 // Additional javascript sources
 $js_sources    = [
     "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.2.9/dist/tf.min.js",
     "https://unpkg.com/popper.js@1.12.6/dist/umd/popper.js",
-    // "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js",
-    // "https://unpkg.com/bootstrap-material-design@4.1.1/dist/js/bootstrap-material-design.js",
     $module->getUrl("assets/scripts/templates.js", true, true),
-    // $module->getUrl("assets/scripts/jquery341_datepicker.min.js",true, true),
     $module->getUrl('assets/scripts/redcapForm.js', true, true),
 ];
 

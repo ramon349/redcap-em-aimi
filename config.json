@@ -88,13 +88,7 @@
 	],
 
 	"crons": [
-		{
-			"cron_name": "aimi_cron",
-			"cron_description": "Cron that runs once a day",
-			"method": "projectCron",
-			"cron_frequency": "86400",
-			"cron_max_run_time": "300"
-		}
+		
 	],
 
 	"system-settings": [

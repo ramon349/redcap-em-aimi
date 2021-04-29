@@ -285,6 +285,7 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
 	// Project Cron
 
 	public function projectCron(){
+        return;
 		$projects = $this->framework->getProjectsWithModuleEnabled();
 
 		//manually enter array of cron pages to run
