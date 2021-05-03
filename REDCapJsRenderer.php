@@ -114,7 +114,10 @@ class REDCapJsRenderer
             curl_setopt($ch, CURLOPT_VERBOSE, 0);
             
             $info 	= curl_getinfo($ch);
+            $errno  = curl_errno($ch);
+            $err    = curl_error($ch);
             $result = curl_exec($ch);
+
             curl_close($ch);
             return;
         }

@@ -40,20 +40,20 @@
 		"project": [
 			{
 		        "name": "Stanford AIMI Instructions",
-		        "icon": "fas fa-arrow-alt-circle-right",
+		        "icon": "fas fa-info-circle",
 		        "url" : "pages/instructions.php",
-		        "show-header-and-footer": true
-			},
-			{
-		        "name": "Run Model",
-		        "icon": "fas fa-arrow-alt-circle-right",
-		        "url" : "pages/aimi.php",
 		        "show-header-and-footer": true
 			},
 			{
 		        "name": "Config/Select Model",
 		        "icon": "fas fa-laptop-code",
 		        "url" : "pages/config_model.php",
+		        "show-header-and-footer": true
+			},
+			{
+		        "name": "Run Model",
+		        "icon": "fas fa-arrow-alt-circle-right",
+		        "url" : "pages/aimi.php",
 		        "show-header-and-footer": true
 			}
 		],

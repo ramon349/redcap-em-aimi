@@ -60,6 +60,8 @@ $rcjs_renderer_config = [
    ,'metadata'         => $metadata
 ];
 
+$UI_title = "XrayFusion";
+
 //Include Asset Files
 foreach($css_sources as $css){
     echo '<link rel="stylesheet" href="'.$css.'" crossorigin="anonymous">';
@@ -78,6 +80,8 @@ foreach($js_sources as $js){
         display:inline-block;
         margin:0 auto;
         font-size: 20px;
+        max-width: 100%;
+        max-height: 100%;
     }
 
     #xray-image,
@@ -212,7 +216,7 @@ foreach($js_sources as $js){
 <main>
     <div class="col-sm-11 my-3 row">
         <div class="col-sm-12 viewer_hd">
-            <h1>XrayFusion<?=$temp_shard_folder?></h1>
+            <h1><?=$UI_title?><?=$temp_shard_folder?></h1>
             <p>Powered by the <a href="https://arxiv.org/abs/1901.07031" target="_blank">CheXpert</a> model. Diseases included are based on prevalence in reports and clinical relevance. </p>
             <?php 
             if(!$selected_model){
