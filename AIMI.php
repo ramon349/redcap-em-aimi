@@ -215,6 +215,8 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
     {
         try{
             if(isset($uri) && isset($info)) {
+                $this->clearTempFiles();
+
                 //NEED THE model.json as well as the config.json in this temp folder
                 $convert_to_raw = str_replace("https://github.com", "https://raw.githubusercontent.com", $uri);
                 $raw_uri        = str_replace("blob/", "", $convert_to_raw);
@@ -223,9 +225,9 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
 
                 // $this->emDebug("em_save_path", $em_save_path);
 
-                if(! is_dir($em_save_path))
+                if(! is_dir($em_save_path)){
                     mkdir($em_save_path);
-
+                }
 
                 $model_files    = $info['shards'];
                 array_push($model_files, $raw_uri, $raw_model);
@@ -238,8 +240,9 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
                         $file_name  = $em_save_path  . '/' . $name;
                         $result     = file_put_contents($file_name, $shard_binary);
                         $this->emDebug("saving file", $file_name );
-                        if (!$result)
+                        if (!$result){
                             throw new \Exception("Error: temp file not saved correctly for $uri");
+                        }
                     } else {
                         throw new \Exception("Shard binary data could not be downloaded at $uri");
                     }

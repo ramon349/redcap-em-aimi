@@ -96,13 +96,20 @@ const AIMI = {
     triggerAlert: (msg, type) => {
         $("#alert p").text(msg);
 
-        if($('#alert').hasClass('success'))
+        if($('#alert').hasClass('success')){
             $('#alert').removeClass('success');
-        if($('#alert').hasClass('alert'))
+        }
+
+        if($('#alert').hasClass('alert')){
             $('#alert').removeClass('alert');
+        }
 
         $('#alert').addClass(type);
-        $('#alert').slideDown();
+        $('#alert').slideDown("medium");
+
+        setTimeout(function(){
+            $('#alert').slideUp("slow");
+        }, 3000);
     },
     
     sendRequest: (payload, successCallback, failureCallback) => {

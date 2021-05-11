@@ -109,6 +109,7 @@ REDCapField.prototype.getRow = function() {
 
     if(this.metadata.hasOwnProperty("element_label") && this.metadata["element_label"] != ""){
         field_template.find(".element_label").html(this.metadata["element_label"]);
+        console.log("wtohoe", this.metadata["element_label"]);
     }
 
     field_template.find(".field_name").data("field_name", this.metadata["field_name"]);
@@ -167,6 +168,11 @@ REDCapField.prototype.getRow = function() {
 //         <input type="text" class="form-control datepicker picker__input" name="{{ field_name }}" id="{{ field_name }}" placeholder="" value="{{ current_value }}" {{readonly}}>
 //         <div class="invalid-feedback">Invalid Input</div>
 //     </div>
+    }
+
+    if (this.getType() == "text"){
+        var placeholder = this.metadata["element_note"];
+        field_template.find("input").prop("placeholder",placeholder);
     }
 
     // Special attention for file type

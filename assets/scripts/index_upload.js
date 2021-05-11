@@ -68,7 +68,7 @@ async function loadModel() {
         console.log("model not found in local indexeddb, load from cached path", MODEL_CONFIGS.model_path);
     }
     console.log("model saved now clean the temp_confg folder");
-    clearTempFiles();
+    // clearTempFiles();
     console.log(`# of tensors just after LOAD: ${tf.memory().numTensors}` );
     await sleep(MODEL_CONFIGS.GUI_WAITTIME);
 

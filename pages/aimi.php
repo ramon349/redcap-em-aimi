@@ -199,6 +199,11 @@ foreach($js_sources as $js){
         font-weight:600;
     }
 
+    .element_label em{
+        display:block; 
+        font-size:85%;
+    }
+    
     blockquote.alert{
         border:0 !important;
     }
@@ -212,6 +217,8 @@ foreach($js_sources as $js){
     #saveRecord.loading .fas{
         display:inline-block;
     }
+
+
 </style>
 <main>
     <div class="col-sm-11 my-3 row">
