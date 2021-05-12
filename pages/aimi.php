@@ -251,7 +251,7 @@ foreach($js_sources as $js){
             <div class="post-model" hidden>
                 <div class="col-sm-12 row">
                     <div class="col-sm-4 main_image">
-                        <input type='file' onchange="readURL(this);" id="select_file" hidden accept="image/*;capture=camera" capture="camera"/>
+                        <input type='file' onchange="readURL(this);" id="select_file" hidden accept="image/*;capture=camera"/>
                         <img id="xray-image" src="<?=$placeholder_image?>" width="320" height="320" class="select-xray"/>
                         <img id="xray-image1" src="<?=$placeholder_image?>" width="320" height="320" style=" display:none;"/>
                         <div id="xray_canvas" style="display: none;" ></div>
