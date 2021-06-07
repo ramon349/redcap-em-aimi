@@ -56,7 +56,7 @@ $exclude    = array($complete["field_name"]);
 
 $rcjs_renderer_config = [
     'exclude_fields'   => array($exclude)
-   ,'readonly'         => array("record_id", "base64_image", "model_results", "model_config", "model_top_predictions")
+   ,'readonly'         => array("record_id", "base64_image", "model_results", "model_config", "model_top_predictions","model_prediction_time")
    ,'metadata'         => $metadata
 ];
 

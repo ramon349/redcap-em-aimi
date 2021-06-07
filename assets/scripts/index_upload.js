@@ -178,8 +178,9 @@ async function get_preds(webcam_elemnt, model){
     var t1 = performance.now();
     var new_mean = (num_predictions * prediction_rolling_mean + t1-t0)/(num_predictions + 1);
     num_predictions += 1;
-    prediction_rolling_mean = new_mean;
-    $(".prediction-time").text(`Average Prediction Time: ${Math.round(prediction_rolling_mean)} ms`)
+    prediction_rolling_mean     = new_mean;
+    var prediction_time_text    = "Average Prediction Time: " + Math.round(prediction_rolling_mean) + "ms"; 
+    $(".prediction-time").text(prediction_time_text);
     
     $("#memory").text(`GPU Memory: ${Math.round(tf.memory()["numBytesInGPU"]/1024/1024)} MB`);
 
@@ -228,6 +229,7 @@ async function get_preds(webcam_elemnt, model){
     $("#model_results").val(data);
     $("#base64_image").val($("#xray-image").attr("src"));
     $("#model_config").val($("#selected_config").text());
+    $("#model_prediction_time").val(prediction_time_text);
 
     tf.dispose(data);
 

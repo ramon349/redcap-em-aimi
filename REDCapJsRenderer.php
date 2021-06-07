@@ -90,7 +90,8 @@ class REDCapJsRenderer
         $model_config           = $fields["model_config"];
         $partner_ground_truth   = $fields["partner_ground_truth"];
         $model_results          = $fields["model_results"];
-        $model_top_predictions  = $fields["model_top_predictions"];;
+        $model_top_predictions  = $fields["model_top_predictions"];
+        $model_prediction_time  = $fields["model_prediction_time"];
         
         if(!empty($partner_token) && !empty($api_url)){
             $data 			    = array(
@@ -98,6 +99,7 @@ class REDCapJsRenderer
                 "model_config"          => $model_config,
                 "model_results"         => $model_results,
                 "model_top_predictions" => $model_top_predictions,
+                "model_prediction_time" => $model_prediction_time,
                 "partner_ground_truth"  => $partner_ground_truth
             );
     
