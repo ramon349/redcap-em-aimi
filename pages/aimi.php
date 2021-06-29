@@ -167,6 +167,7 @@ foreach($js_sources as $js){
 
     .main_image{
         text-align:center;
+        min-width:354px;
     }
     .model_details{
         padding-top:30px;
