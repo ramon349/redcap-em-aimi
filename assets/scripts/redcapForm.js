@@ -44,6 +44,7 @@ REDCapField.prototype.insertRow = function(container) {
     if(!this.metadata["readonly"]) {
         this.bindChange(jq_row);
     }
+
     jq_row.appendTo(container);
 };
 
@@ -57,7 +58,7 @@ REDCapField.prototype.getRow = function() {
 
     var template_var    = window["template_" + template_suffix];
     var field_template  = $(template_var);
-
+    
     /* radio/checkboxes/selects require extra steps to extract options which are "\\n" delimited strings and need massaging
         ... current values absurdly can be an {}, [] or String */
     var enum_result = [];
@@ -109,15 +110,15 @@ REDCapField.prototype.getRow = function() {
 
     if(this.metadata.hasOwnProperty("element_label") && this.metadata["element_label"] != ""){
         field_template.find(".element_label").html(this.metadata["element_label"]);
-        console.log("wtohoe", this.metadata["element_label"]);
+        // console.log(this.metadata["element_label"]);
     }
-
+    
     field_template.find(".field_name").data("field_name", this.metadata["field_name"]);
     if(template_suffix == "radio" || template_suffix == "checkbox"){
         //Was i to do something here?
     }else{
-        field_template.find(".field_name label").attr("for", this.metadata["field_name"])
-        field_template.find(".field_name :input").attr("name", this.metadata["field_name"]).attr("id",this.metadata["field_name"]);
+        field_template.find(".field_name label").attr("for", this.metadata["field_name"]);
+        field_template.find(".field_name :input").attr("name", this.metadata["field_name"]);
     }
     
     if(this.metadata.hasOwnProperty("current_value") && this.metadata["current_value"] != ""){
@@ -379,7 +380,7 @@ RCForm = {
 
                 let record_id = result["record_id"];
                 console.log("record id", record_id);
-                $("#record_id").val(record_id);
+                $("input[name='record_id']").val(record_id);
                 //CLEAR FORM
                 // _this.clearForm();
 

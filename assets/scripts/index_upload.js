@@ -1,8 +1,7 @@
 // Import model configurations from config.json
 var MODEL_CONFIGS = config_data;
-
-console.log("MODEL_CONFIGS", MODEL_CONFIGS)
-// console.log(MODEL_CONFIGS.RGB_COLORMAP)
+console.log(MODEL_CONFIGS)
+console.log(MODEL_CONFIGS.RGB_COLORMAP)
 
 // Get diseases that we wish to display. Here we have chosen 7 out of the model's original 14
 // outputs, based on clinical relevance and prevalence in reports. 
@@ -11,7 +10,7 @@ for (var i = 0; i < MODEL_CONFIGS.labels.length; i++) {
     disease_index = MODEL_CONFIGS.all_labels.indexOf(MODEL_CONFIGS.labels[i]);
     diseases_needed_index.push(disease_index);
 }
-// console.log(diseases_needed_index);
+console.log(diseases_needed_index);
 
 // Declare any custom network layers needed here (as classes). When converting the original Stanford CheXpert 
 // model, we required a Lambda layer that does not yet exist in tensorflow.js by default. 
@@ -25,12 +24,12 @@ class Lambda extends tf.layers.Layer {
     }
 
     computeOutputShape(inputShape) {
-        return [inputShape[0]];
+    return [inputShape[0]];
     }
 
     call(inputs, kwargs) {
     this.invokeCallHook(inputs, kwargs);
-        return inputs[0]
+    return inputs[0]
     }
 }
 // Don't forget to register your custom layers (if any) using this line of code 
@@ -42,12 +41,12 @@ let model;
 // Loads the model, and warms it up with test input. User can configure this load function 
 // according to the input specifications of the model. 
 async function loadModel() {
+    console.log(`# of tensors on OPEN: ${tf.memory().numTensors}` );
+
     $('.model-progress-bar').hide();
     $(".loading_saved_model").hide();
 
-    console.log(`# of tensors on OPEN: ${tf.memory().numTensors}`);
-    console.log(`# of tensors just before LOAD: ${tf.memory().numTensors}`);
-    
+    var t0 = performance.now();
     // Load the model using tensorflow.js API call to load a layers model. This could be a 
     // loadLayersModel() or loadGraphModel() depending on which model the users imports. 
     // More here: https://js.tensorflow.org/api/latest/
@@ -67,17 +66,21 @@ async function loadModel() {
         $(".model-progress-bar .progress").text(`Warming Up ...`);
         console.log("model not found in local indexeddb, load from cached path", MODEL_CONFIGS.model_path);
     }
-    console.log("model saved now clean the temp_confg folder");
+    console.log("model saved now clean the temp_confg folder", model);
     // clearTempFiles();
+
     console.log(`# of tensors just after LOAD: ${tf.memory().numTensors}` );
     await sleep(MODEL_CONFIGS.GUI_WAITTIME);
 
     // Warmup the model before using real data.
     const zero_tensor = tf.zeros([1,3,MODEL_CONFIGS.IMG_SIZE,MODEL_CONFIGS.IMG_SIZE])
     const warmupResult = await model.predict(zero_tensor, );
+
+
     tf.dispose(warmupResult);
     tf.dispose(zero_tensor);
-    console.log(`# of tensors after warmup: ${tf.memory().numTensors}` );
+
+
 }
 
 function sleep(ms) {
@@ -179,7 +182,8 @@ async function get_preds(webcam_elemnt, model){
     var new_mean = (num_predictions * prediction_rolling_mean + t1-t0)/(num_predictions + 1);
     num_predictions += 1;
     prediction_rolling_mean     = new_mean;
-    var prediction_time_text    = "Average Prediction Time: " + Math.round(prediction_rolling_mean) + "ms"; 
+    var pred_round_mean         = Math.round(prediction_rolling_mean); 
+    var prediction_time_text    = "Average Prediction Time: " + pred_round_mean + "ms"; 
     $(".prediction-time").text(prediction_time_text);
     
     $("#memory").text(`GPU Memory: ${Math.round(tf.memory()["numBytesInGPU"]/1024/1024)} MB`);
@@ -225,11 +229,10 @@ async function get_preds(webcam_elemnt, model){
             top_probs.unshift(MODEL_CONFIGS.labels[i] + " : " + Math.round(top_val*100) + "%");
         }
     }
-    $("#model_top_predictions").val(top_probs);
-    $("#model_results").val(data);
-    $("#base64_image").val($("#xray-image").attr("src"));
-    $("#model_config").val($("#selected_config").text());
-    $("#model_prediction_time").val(prediction_time_text);
+    $("input[name='model_top_predictions']").val(top_probs);
+    $("input[name='model_results']").val(data);
+    $("input[name='model_config']").val($("#selected_config").text());
+    $("input[name='model_prediction_time']").val(pred_round_mean);
 
     tf.dispose(data);
 
@@ -248,7 +251,19 @@ async function get_preds(webcam_elemnt, model){
 // on the original image. It then displays the heatmap along with a link to download it. 
 async function getGrads(image, index) {
 
+    var t0 = performance.now();
+
     grads = await gradCAM(image, index);
+
+    var t1 = performance.now();
+    var new_mean = (num_predictions * prediction_rolling_mean + t1-t0)/(num_predictions + 1);
+    num_predictions += 1;
+    prediction_rolling_mean = new_mean;
+    console.log(prediction_rolling_mean);
+    console.log(tf.memory()["numBytesInGPU"]/1024/1024);
+    $(".prediction-time").text(`Average Operation Time: ${Math.round(prediction_rolling_mean)} ms`)
+    
+    $("#memory").text(`GPU Memory: ${Math.round(tf.memory()["numBytesInGPU"]/1024/1024)} MB`);
 
     heatMap = tf.tidy(() => {
         // Expand dimensions since colorMap function expects rank 4 tensor
@@ -280,6 +295,7 @@ async function getGrads(image, index) {
     tf.dispose(heatMap);
     console.log(tf.memory());
 }
+
 
 // This function generates gradCAM (visual explanations of the model's predictions). Here we use the 
 // tf.grad() method of TensorFlow.js which has the advantage that it can work on any model loaded 
@@ -386,9 +402,9 @@ async function app() {
         }
     }
     
-  $('.model-progress-bar').hide();
-  $(".loading_saved_model").hide();
 
+  $(".loading_saved_model").hide();
+  $('.model-progress-bar').hide();
   $('.post-model').removeAttr("hidden");    
   
   $('#select_file').change(function () {
