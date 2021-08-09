@@ -45,8 +45,8 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
 
             //TODO RATE LIMITED TO 60 PER HOUR MIGHT HAVE TO ADUST
             //Grab all root repository contents, non recursively
-            $rate_limit = $this->getClient()->request("GET", 'https://api.github.com/rate_limit');
-            $github_entries = $this->getClient()->request("GET", MODEL_REPO_ENDPOINT);
+            $rate_limit = $this->getClient()->createRequest("GET", 'https://api.github.com/rate_limit');
+            $github_entries = $this->getClient()->createRequest("GET", MODEL_REPO_ENDPOINT);
             $models = array();
 
             //Generate new model for each subtree to record versions
@@ -76,7 +76,7 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
         try {
             //Fetch all contents from repo tree
             $this->setClient(new Client($this));
-            $contents = $this->getClient()->request("GET", MODEL_REPO_ENDPOINT . '/' . rawurlencode($path));
+            $contents = $this->getClient()->createRequest("GET", MODEL_REPO_ENDPOINT . '/' . rawurlencode($path));
             $versions = array();
             foreach($contents as $entry) {
                 if($entry['type'] === 'dir')
@@ -101,7 +101,7 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
     {
         try {
             $this->setClient(new Client($this));
-            $contents = $this->getClient()->request("GET", MODEL_REPO_ENDPOINT . '/' . $path);
+            $contents = $this->getClient()->createRequest("GET", MODEL_REPO_ENDPOINT . '/' . $path);
             $payload = array();
             $payload['info'] = array();
 
@@ -142,7 +142,7 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
         if (array_key_exists($alias,$existing)) {
             unset($existing[$alias]);
             $result = $this->setProjectSetting('aliases', $existing);
-            
+
             $active_alias = $this->getProjectSetting("active_alias");
             if($active_alias == $alias){
                 //deleted model was the active one so remove from active
@@ -264,7 +264,7 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
         $model_temp_path    = __DIR__ . '/temp_config/*';
         $save_file          = __DIR__ . '/temp_config/redcap_config.js';
         $files_to_keep      = array( $save_file );
-        
+
         $dirList = glob($model_temp_path);
         foreach ($dirList as $file) {
             if (!in_array($file, $files_to_keep)) {
@@ -300,7 +300,7 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
 			foreach($urls as $url){
 				$thisUrl 	= $url . "&pid=$project_id"; //project specific
 				$client 	= new Client();
-				$response 	= $client->request('GET', $thisUrl, array(\GuzzleHttp\RequestOptions::SYNCHRONOUS => true));
+				$response 	= $client->createRequest('GET', $thisUrl, array(\GuzzleHttp\RequestOptions::SYNCHRONOUS => true));
 				$this->emDebug("running cron for $url on project $project_id");
 			}
 		}

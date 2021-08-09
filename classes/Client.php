@@ -3,6 +3,7 @@
 namespace Stanford\AIMI;
 
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\GuzzleException;
 
 class Client extends \GuzzleHttp\Client
 {
@@ -17,7 +18,7 @@ class Client extends \GuzzleHttp\Client
 
     }
 
-    public function request($method, $uri = '', array $options = [])
+    public function createRequest($method, $uri = '', array $options = [])
     {
         try {
             $response = parent::request($method, $uri, $options);
@@ -36,6 +37,8 @@ class Client extends \GuzzleHttp\Client
         } catch (ClientException $e) {
             $this->getEm()->emError($e->getMessage());
         } catch (\Exception $e) {
+            $this->getEm()->emError($e->getMessage());
+        } catch (GuzzleException $e) {
             $this->getEm()->emError($e->getMessage());
         }
     }

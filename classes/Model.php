@@ -39,7 +39,7 @@ class Model
     public function setVersions($versions = array())
     {
         if(empty($versions)) {
-            $contents = $this->getClient()->request('GET', SHA_ENDPOINT . $this->getSha()); //Returns all contents of subrepo
+            $contents = $this->getClient()->createRequest('GET', SHA_ENDPOINT . $this->getSha()); //Returns all contents of subrepo
             $trees = array();
             foreach($contents['tree'] as $entry) {
                 if($entry['type'] === 'tree')
