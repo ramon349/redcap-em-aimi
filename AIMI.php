@@ -178,7 +178,7 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
                 throw new \Exception("Error: alias: $alias already exists, skipping");
 
             $build = array_merge($existing, array($alias=>$config));
-            
+
             $build[$alias]["shard_edocs"]   = array(); // array that specifies edoc IDs for already saved models
             $build[$alias]["model_json"]    = null;
             $build[$alias]["config_js"]     = null;
@@ -213,16 +213,16 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
 
     /**
      * @param $edoc_id
-     * @throws \Exception 
+     * @throws \Exception
      */
     public function getTempShardPath($edoc_id)
     {
         $doc_temp_path = \Files::copyEdocToTemp($edoc_id, false, true); //save to temp folder for later reference
         if($doc_temp_path) {
             $this->emLog("Saved shard file temp for alias : " .
-                $active_alias . ', doc_id : ' . $edoc_id .  ', tempPath : ' . $doc_temp_path
+                ', doc_id : ' . $edoc_id .  ', tempPath : ' . $doc_temp_path
             );
-            return $doc_temp_path; 
+            return $doc_temp_path;
 
         } else {
             throw new \Exception("No temp path returned for doc id: " . $edoc_id);
@@ -238,115 +238,103 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
     public function applyConfig($uri, $info, $active_alias)
     {
         //1 get existing aliasess
-        //2 check if $active_alias exsists
+        //2 check if $active_alias exists
         //3 does existing alias have existing edoc_ids
-        $existing_aliases = $this->setProjectSetting('aliases');
+        //4 if no then download and save edoc_ids to the alias and resave to project setting
+        //5 take the edoc_ids -> copytoTemp
+        //6 modify and save config.js and model.json and save to alias as well
+
+
+        $existing_aliases = $this->getProjectSetting('aliases');
         $temp_shard_paths = array();
-        
-        $this->emDebug($info);
         try{
             if(empty($existing_aliases[$active_alias])) {
                 throw new \Exception("Active alias : " . $active_alias . " Not present in project config. ");
             }
-            
+
             if(!empty($existing_aliases[$active_alias]["shard_edocs"])) { //shard edocs should be present, and we have already downloaded them
                 foreach($existing_aliases[$active_alias]["shard_edocs"] as $edoc_id) {
                     $doc_temp_path = $this->getTempShardPath($edoc_id);
-                    array_push($temp_shard_paths, $doc_temp_path); 
+                    array_push($temp_shard_paths, $doc_temp_path);
                 }
             } else { //first time applying config, we have to download the file
                 $convert_to_raw = str_replace("https://github.com", "https://raw.githubusercontent.com", $uri);
                 $raw_uri        = str_replace("blob/", "", $convert_to_raw);
                 $raw_model      = str_replace("config.js", "model.json", $raw_uri);
-                
+
                 $model_files    = $info['shards'];
+                //ADD config.js and model.json to the batch of files for download
                 array_push($model_files, $raw_uri, $raw_model);
 
                 $shard_edocids  = array();
+                $model_json     = array();
+                $config_js      = null;
                 foreach($model_files as $ind => $shard) { //upload all shards to edocs
                     $shard_binary_or_js = file_get_contents($shard);
-                    if(isset($shard_binary)) {
+                    if(isset($shard_binary_or_js)) {
                         $temp       = explode("/",$shard);
                         $name       = array_pop($temp);
-                        
+
                         if($name !== "model.json" && $name !== "config.js"){
-                            $edoc_id    = \Files::uploadFile($shard_binary_or_js);
+                            //need to first download the file to redcap temp
+                            $temp_path = APP_PATH_TEMP . "AIMI_" . $name;
+                            file_put_contents($temp_path, $shard_binary_or_js);
+                            $this->emDebug("temp_path", $temp_path);
+
+                            //then we can use File::upload to upload the temp file to edoc
+                            $file       = array(
+                                'name'=>basename($name),
+                                'type'=>'application/octet-stream',
+                                'size'=>filesize($temp_path),
+                                'tmp_name'=>$temp_path);
+                            $edoc_id    = \Files::uploadFile($file);
+
                             if($edoc_id){
-                                $shard_edocids[]        = $edoc_id;
-                                $doc_temp_path          = $this->getTempShardPath($edoc_id);
-                                array_push($temp_shard_paths, $doc_temp_path); 
+                                $doc_temp_path = $this->getTempShardPath($edoc_id);
+                                array_push($shard_edocids, $edoc_id);
+                                array_push($temp_shard_paths, $doc_temp_path);
                             }
                         }
-                        
-                    
 
-                    } else {
-                        throw new \Exception("Shard binary data could not be downloaded at $uri");
+                        if($name == "model.json"){
+                            $model_json     = $shard_binary_or_js;
+                        }
+
+                        if($name == "config.js"){
+                            $config_js      = $shard_binary_or_js;
+                        }
                     }
                 }
+
+                $url_modeljson      = $this->getUrl("endpoints/passthrough.php?em_setting=model_js", true, true);
+                $config_js          = str_replace("model.json", $url_modeljson, $config_js);
+
+                $existing_aliases[$active_alias]["config_js"]   = $config_js;
+                $existing_aliases[$active_alias]["model_json"]  = json_decode($model_json, true);
                 $existing_aliases[$active_alias]["shard_edocs"] = $shard_edocids;
-                $result = $this->setProjectSetting('aliases', $existing_aliases);  
+
+                $result = $this->setProjectSetting('aliases', $existing_aliases);
             }
         } catch (\Exception $e) {
             echo 'Caught exception: ', $e->getMessage(), "\n";
             $this->emError($e->getMessage());
         }
-        
-        $this->emDebug("temp_shard_paths ", $temp_shard_paths);
-       
-        
-        
-        //4 if no then download and save edoc_ids to the alias and resave to project setting
-        //5 take the edoc_ids -> copytoTemp
-        //6 modify and save config.js and model.json and save to alias as well
-        
+
+//        $this->emDebug("temp_shard_paths ", $temp_shard_paths);
 
         try{
             if(isset($uri) && isset($info)) {
-                //NEED THE model.json as well as the config.json in this temp folder
-                $convert_to_raw = str_replace("https://github.com", "https://raw.githubusercontent.com", $uri);
-                $raw_uri        = str_replace("blob/", "", $convert_to_raw);
-                $raw_model      = str_replace("config.js", "model.json", $raw_uri);
-                
-                $model_files    = $info['shards'];
-                array_push($model_files, $raw_uri, $raw_model);
-
-                $shard_edocids  = array();
-                foreach($model_files as $ind => $shard) {
-                    $shard_binary_or_js = file_get_contents($shard);
-                    if(isset($shard_binary)) {
-                        $temp       = explode("/",$shard);
-                        $name       = array_pop($temp);
-                        
-                        if($name == "model.json"){
-                            //TODO 3 : If model.json THEN GET json, REWRITE THE ["weightsManifest"]["Paths"] AND save to EM config project settings
-                            $model_json     = json_decode($shard_binary_or_js,true);
-                        }
-
-                        if($name == "config.js"){
-                            //TODO 4 : If config.js THEN GET FILE, REWRITE THE "model_path": "model.json", AND save to EM config project settings
-                            $config_js      = $shard_binary_or_js;
-                        }
-                    } else {
-                        throw new \Exception("Shard binary data could not be downloaded at $uri");
-                    }
-                }
-
-                //CALL edocToTemp Function
-                $url_modeljson      = $this->getUrl("endpoints/passthrough.php?em_setting=model_js", true, true);  
-                $config_js          = str_replace("model.json", $url_modeljson, $shard_binary_or_js);
-
+                //need to wait to do this because temp files will be deleted periodically
                 $passthrough_shard_urls = array();
                 foreach($temp_shard_paths as $temp_path){
                     $shard_url = $this->getUrl("endpoints/passthrough.php?filepath=$temp_path", true, true);
                     array_push($passthrough_shard_urls , $shard_url);
                 }
-                $model_json["weightsManifest"]["paths"]         = $passthrough_shard_urls;
 
-                $existing_aliases[$active_alias]["shard_edocs"] = $shard_edocids;
+                $model_json                                     = $existing_aliases[$active_alias]["model_json"];
+                $model_json["weightsManifest"]["paths"]         = $passthrough_shard_urls;
                 $existing_aliases[$active_alias]["model_json"]  = $model_json;
-                $existing_aliases[$active_alias]["config_js"]   = $config_js;
-                $result = $this->setProjectSetting('aliases', $existing_aliases); //Will overwrite existing aliases: 
+                $result = $this->setProjectSetting('aliases', $existing_aliases); //Will overwrite existing aliases:
 
                 $result = $this->setProjectSetting('active_alias', $active_alias);
                 $result = $this->setProjectSetting('config_uri', $uri);
