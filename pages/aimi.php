@@ -19,7 +19,7 @@ $url_configjs           = $module->getUrl("temp_config/config.js");
 $url_modeljson          = $module->getUrl("temp_config/model.json");
 
 $em_save_path           = __DIR__ . '/../temp_config/';
-$file_configjs          = $em_save_path ."config.js";
+$file_configjs          = "config.js";
 $file_redcapconfigjs    = $em_save_path ."redcap_config.js";
 if(file_exists($file_configjs)){
     //If config.js exists in temp_config (means theres a new set of files)    
@@ -28,7 +28,7 @@ if(file_exists($file_configjs)){
     $configjs               = str_replace("model.json", $url_modeljson, $temp_js);
     
     //then save new redcap_model.js then delete temp_config (Done After Model Cached from JS Ajax call)
-    file_put_contents($file_redcapconfigjs, $configjs);
+    // file_put_contents($file_redcapconfigjs, $configjs);
 }
 
 //Set active model
