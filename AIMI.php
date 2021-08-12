@@ -306,7 +306,7 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
                     }
                 }
 
-                $url_modeljson      = $this->getUrl("endpoints/passthrough.php?em_setting=model_js", true, true);
+                $url_modeljson      = $this->getUrl("endpoints/passthrough.php?em_setting=model_json", true, true);
                 $config_js          = str_replace("model.json", $url_modeljson, $config_js);
 
                 $existing_aliases[$active_alias]["config_js"]   = $config_js;
@@ -332,7 +332,7 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
                 }
 
                 $model_json                                     = $existing_aliases[$active_alias]["model_json"];
-                $model_json["weightsManifest"]["paths"]         = $passthrough_shard_urls;
+                $model_json["weightsManifest"][0]["paths"]      = $passthrough_shard_urls;
                 $existing_aliases[$active_alias]["model_json"]  = $model_json;
                 $result = $this->setProjectSetting('aliases', $existing_aliases); //Will overwrite existing aliases:
 

@@ -4,7 +4,7 @@ console.log(MODEL_CONFIGS)
 console.log(MODEL_CONFIGS.RGB_COLORMAP)
 
 // Get diseases that we wish to display. Here we have chosen 7 out of the model's original 14
-// outputs, based on clinical relevance and prevalence in reports. 
+// outputs, based on clinical relevance and prevalence in reports.
 let diseases_needed_index = new Array();
 for (var i = 0; i < MODEL_CONFIGS.labels.length; i++) {
     disease_index = MODEL_CONFIGS.all_labels.indexOf(MODEL_CONFIGS.labels[i]);
@@ -12,8 +12,8 @@ for (var i = 0; i < MODEL_CONFIGS.labels.length; i++) {
 }
 console.log(diseases_needed_index);
 
-// Declare any custom network layers needed here (as classes). When converting the original Stanford CheXpert 
-// model, we required a Lambda layer that does not yet exist in tensorflow.js by default. 
+// Declare any custom network layers needed here (as classes). When converting the original Stanford CheXpert
+// model, we required a Lambda layer that does not yet exist in tensorflow.js by default.
 class Lambda extends tf.layers.Layer {
     constructor() {
     super({})
@@ -32,14 +32,14 @@ class Lambda extends tf.layers.Layer {
     return inputs[0]
     }
 }
-// Don't forget to register your custom layers (if any) using this line of code 
+// Don't forget to register your custom layers (if any) using this line of code
 tf.serialization.SerializationMap.register(Lambda);
 
 // Initialize model that will be loaded upon page load
 let model;
 
-// Loads the model, and warms it up with test input. User can configure this load function 
-// according to the input specifications of the model. 
+// Loads the model, and warms it up with test input. User can configure this load function
+// according to the input specifications of the model.
 async function loadModel() {
     console.log(`# of tensors on OPEN: ${tf.memory().numTensors}` );
 
@@ -47,8 +47,8 @@ async function loadModel() {
     $(".loading_saved_model").hide();
 
     var t0 = performance.now();
-    // Load the model using tensorflow.js API call to load a layers model. This could be a 
-    // loadLayersModel() or loadGraphModel() depending on which model the users imports. 
+    // Load the model using tensorflow.js API call to load a layers model. This could be a
+    // loadLayersModel() or loadGraphModel() depending on which model the users imports.
     // More here: https://js.tensorflow.org/api/latest/
     try {
         $(".loading_saved_model").show();
@@ -58,10 +58,13 @@ async function loadModel() {
         $('.model-progress-bar').show();
 
         model = await tf.loadLayersModel(MODEL_CONFIGS.model_path, {'onProgress':function(p){
-            $(".model-progress-bar .progress-bar").css("width",`${Math.round(p * 100)}%`);
-            $(".model-progress-bar .stats_progress_bar").css("left",`${Math.round(p * 100)}%`);
-            $(".model-progress-bar .progress-bar").text(`Loading Model (${Math.round(p * 100)}%) ...`);
-        }});
+                    $(".model-progress-bar .progress-bar").css("width",`${Math.round(p * 100)}%`);
+                    $(".model-progress-bar .stats_progress_bar").css("left",`${Math.round(p * 100)}%`);
+                    $(".model-progress-bar .progress-bar").text(`Loading Model (${Math.round(p * 100)}%) ...`);
+                }, 'weightUrlConverter' : function(url){
+                    console.log("shard url", url);
+                    return url;
+                }});
         await model.save('indexeddb://current-model');
         $(".model-progress-bar .progress").text(`Warming Up ...`);
         console.log("model not found in local indexeddb, load from cached path", MODEL_CONFIGS.model_path);
@@ -87,9 +90,9 @@ function sleep(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// Include pre-processing function here. We preprocess the image as per the requirements of the CheXpert 
-// model specifications. The model config file accordingly declares image sizing and cropping variables. 
-// For the RedCAP module, users can modify this function to suit their pre-processing specifications. 
+// Include pre-processing function here. We preprocess the image as per the requirements of the CheXpert
+// model specifications. The model config file accordingly declares image sizing and cropping variables.
+// For the RedCAP module, users can modify this function to suit their pre-processing specifications.
 function preprocessImage(image) {
     return tf.tidy(() => {
         let tensor = tf.browser.fromPixels(image, numChannels=3).toFloat();
@@ -121,8 +124,8 @@ function preprocessImage(image) {
                         .reshape([102400])
         };
 
-        let norm = tf.stack([centeredRGB.red.div(tf.scalar(stdImageNetRGB.red)).reshape([1,320,320]), 
-        centeredRGB.green.div(tf.scalar(stdImageNetRGB.green)).reshape([1,320,320]), 
+        let norm = tf.stack([centeredRGB.red.div(tf.scalar(stdImageNetRGB.red)).reshape([1,320,320]),
+        centeredRGB.green.div(tf.scalar(stdImageNetRGB.green)).reshape([1,320,320]),
         centeredRGB.blue.div(tf.scalar(stdImageNetRGB.blue)).reshape([1,320,320])], 1);
 
         let proc_image = tf.tensor4d(Array.from(norm.dataSync()),[1,3,320,320]);
@@ -141,12 +144,12 @@ let num_predictions = 0;
 let prediction_rolling_mean = 0;
 let tensor = 0;
 
-// This function gets the prediction of an uploaded image, essentially running inference 
-// on the model and then passing it via a sigmoid to generate probabilities. 
+// This function gets the prediction of an uploaded image, essentially running inference
+// on the model and then passing it via a sigmoid to generate probabilities.
 async function get_preds(webcam_elemnt, model){
 
     tensor = preprocessImage(webcam_elemnt);
-    
+
     // Generate performance metrics and run prediction
     var t0 = performance.now();
     let prediction = model.predict(tensor);
@@ -155,7 +158,7 @@ async function get_preds(webcam_elemnt, model){
     let data_needed = diseases_needed_index.map(i => data_all[i]);
     let data = new Array();
 
-    // Here, we apply a piecewise linear function to calibrate/scale model output, as adapted from  
+    // Here, we apply a piecewise linear function to calibrate/scale model output, as adapted from
     // the Chester Chest X-ray system: https://arxiv.org/pdf/1901.11210.pdf
     for (let i = 0; i < data_needed.length; i++) {
         if (data_needed[i]<MODEL_CONFIGS.op_points[i]){
@@ -182,14 +185,14 @@ async function get_preds(webcam_elemnt, model){
     var new_mean = (num_predictions * prediction_rolling_mean + t1-t0)/(num_predictions + 1);
     num_predictions += 1;
     prediction_rolling_mean     = new_mean;
-    var pred_round_mean         = Math.round(prediction_rolling_mean); 
-    var prediction_time_text    = "Average Prediction Time: " + pred_round_mean + "ms"; 
+    var pred_round_mean         = Math.round(prediction_rolling_mean);
+    var prediction_time_text    = "Average Prediction Time: " + pred_round_mean + "ms";
     $(".prediction-time").text(prediction_time_text);
-    
+
     $("#memory").text(`GPU Memory: ${Math.round(tf.memory()["numBytesInGPU"]/1024/1024)} MB`);
 
     console.log(`# of tensors before Prediction: ${tf.memory().numTensors}` );
-    
+
     for (let i=0; i<data.length; i++){
         if (MODEL_CONFIGS.labels_to_show.indexOf(MODEL_CONFIGS.labels[i]) != -1) {
             bar = prediction_elements[i];
@@ -201,11 +204,11 @@ async function get_preds(webcam_elemnt, model){
             if(Math.round(data[i] * 100) > 24){
                 bar_btn.show();
                 bar_btn.click(function(){
-                    
+
                     $("#loading_explain").removeAttr("hidden");
                     console.log("Analyzing...")
                     var act_btn = $(this);
-                    
+
                     // Timeout function since getGrads is async
                     setTimeout(function () {
                     getGrads($('#xray-image1')[0], i);
@@ -213,15 +216,15 @@ async function get_preds(webcam_elemnt, model){
                     $("#xray_explain").html('Predictive Regions for "'+act_btn.parent().parent().find('span.label').html()+'"');
                     $("#grad_download").show();
                     $('#grad_download').html('<a id="download_anchor" download="image_explained.jpg" href="www.google.come">Download Explained Image</a>');
-            
+
                 }, 30);
-                    
+
                 })
             }
-            
+
         }
     }
-    
+
     var top_val     =  Math.max.apply(Math, data);
     var top_probs   = [];
     for (var i = data.length - 1; i >= 0; i--) {
@@ -247,8 +250,8 @@ async function get_preds(webcam_elemnt, model){
     $("#grad_download").html("");
 }
 
-// This function gets the gradients from the gradCAM method and then overlays the heatmap 
-// on the original image. It then displays the heatmap along with a link to download it. 
+// This function gets the gradients from the gradCAM method and then overlays the heatmap
+// on the original image. It then displays the heatmap along with a link to download it.
 async function getGrads(image, index) {
 
     var t0 = performance.now();
@@ -262,7 +265,7 @@ async function getGrads(image, index) {
     console.log(prediction_rolling_mean);
     console.log(tf.memory()["numBytesInGPU"]/1024/1024);
     $(".prediction-time").text(`Average Operation Time: ${Math.round(prediction_rolling_mean)} ms`)
-    
+
     $("#memory").text(`GPU Memory: ${Math.round(tf.memory()["numBytesInGPU"]/1024/1024)} MB`);
 
     heatMap = tf.tidy(() => {
@@ -297,9 +300,9 @@ async function getGrads(image, index) {
 }
 
 
-// This function generates gradCAM (visual explanations of the model's predictions). Here we use the 
-// tf.grad() method of TensorFlow.js which has the advantage that it can work on any model loaded 
-// into the platform. On the other hand, the method has a slower runtime. 
+// This function generates gradCAM (visual explanations of the model's predictions). Here we use the
+// tf.grad() method of TensorFlow.js which has the advantage that it can work on any model loaded
+// into the platform. On the other hand, the method has a slower runtime.
 async function gradCAM(image, index) {
 
     return layer = tf.tidy(() => {
@@ -311,7 +314,7 @@ async function gradCAM(image, index) {
     });
 }
 
-// Function that applies a color map to render the heatmap overlay on the uploaded image. Adapted from 
+// Function that applies a color map to render the heatmap overlay on the uploaded image. Adapted from
 // the tensorflow.js implementation (https://github.com/tensorflow/tfjs-examples/blob/master/visualize-convnet/utils.js)
 function applyColorMap(x) {
     tf.util.assert(
@@ -367,7 +370,7 @@ function readURL(input) {
             $('#xray-image1').attr('src', e.target.result);
             $('#xray-image1').hide();
         };
-    
+
         reader.readAsDataURL(input.files[0]);
     }
 }
@@ -376,7 +379,7 @@ let prediction_elements = [];
 let prediction_elements_txt = [];
 let explain_btns = [];
 
-// Driver function to run the app 
+// Driver function to run the app
 async function app() {
     // Load the model using the loading function
     await loadModel();
@@ -384,7 +387,7 @@ async function app() {
     let pred_template = $(".prediction-template").clone();
     pred_template.removeAttr("hidden");
     pred_template.removeClass("prediction-template");
-    
+
     for (let i = 0; i < MODEL_CONFIGS.labels.length; i ++){
       let e = pred_template.clone();
       let label = MODEL_CONFIGS.labels[i];
@@ -395,22 +398,22 @@ async function app() {
 
       explain_btns.push($(e.find(".Explain_btn")));
     }
-    
+
     for (let i = 0; i < MODEL_CONFIGS.labels.length; i ++) {
         if (MODEL_CONFIGS.labels_to_show.indexOf(MODEL_CONFIGS.labels[i]) == -1) {
             prediction_elements[i].parent().parent().parent().hide()
         }
     }
-    
+
 
   $(".loading_saved_model").hide();
   $('.model-progress-bar').hide();
-  $('.post-model').removeAttr("hidden");    
-  
+  $('.post-model').removeAttr("hidden");
+
   $('#select_file').change(function () {
       console.log("Analyzing...")
       $("#loading_indicator").removeAttr("hidden");
-      
+
         for (let i=0; i<MODEL_CONFIGS.labels_to_show.length; i++){
             let bar = prediction_elements[i];
             let bar_txt = prediction_elements_txt[i];
@@ -421,10 +424,10 @@ async function app() {
             bar_btn.hide();
         }
       setTimeout(function () {
-        get_preds($("#xray-image")[0], model);    
+        get_preds($("#xray-image")[0], model);
       }, 100)
-      
-  })  
+
+  })
 
   $('.select-xray').click(function () {
       $("#select_file").click();
@@ -432,12 +435,12 @@ async function app() {
 
   $('.stats_progress_bar').hover(function() {
     $(this).parent().find(".stats_gress_text").show();
-    
+
   }, function() {
     $(this).parent().find(".stats_gress_text").hide();
-    
+
   })
-  
+
 }
 
 function clearTempFiles(){

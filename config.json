@@ -55,12 +55,6 @@
 		        "icon": "fas fa-arrow-alt-circle-right",
 		        "url" : "pages/aimi.php",
 		        "show-header-and-footer": true
-			},
-			{
-		        "name": "test endp",
-		        "icon": "fas fa-arrow-alt-circle-right",
-		        "url" : "endpoints/test.php",
-		        "show-header-and-footer": false
 			}
 		],
 		"control-center": [
@@ -70,7 +64,7 @@
 
 	"no-auth-pages": [
 		"endpoints/syncData",
-		"endpoints/test"
+		"endpoints/passthrough"
 	],
 
 	"project-settings": [
@@ -95,7 +89,7 @@
 	],
 
 	"crons": [
-		
+
 	],
 
 	"system-settings": [

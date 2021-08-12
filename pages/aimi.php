@@ -13,29 +13,7 @@ $url_configmodel        = $module->getUrl("pages/config_model.php");
 $ajax_endpoint          = $module->getUrl("endpoints/ajaxHandler.php");
 
 //Should be including recap_config.js, if not exist or new model active, will need to create new
-$selected_model         = null;
-$url_reddcapconfigjs    = $module->getUrl("temp_config/redcap_config.js");
-$url_configjs           = $module->getUrl("temp_config/config.js");
-$url_modeljson          = $module->getUrl("temp_config/model.json");
-
-$em_save_path           = __DIR__ . '/../temp_config/';
-$file_configjs          = "config.js";
-$file_redcapconfigjs    = $em_save_path ."redcap_config.js";
-if(file_exists($file_configjs)){
-    //If config.js exists in temp_config (means theres a new set of files)    
-    //Modify Config File to hold full URL to  "model.json" in the model_path
-    $temp_js                = file_get_contents($url_configjs);
-    $configjs               = str_replace("model.json", $url_modeljson, $temp_js);
-    
-    //then save new redcap_model.js then delete temp_config (Done After Model Cached from JS Ajax call)
-    // file_put_contents($file_redcapconfigjs, $configjs);
-}
-
-//Set active model
-if(file_exists($file_redcapconfigjs)){
-    $selected_model         = $url_reddcapconfigjs;
-}
-
+$selected_model         = $module->getUrl("endpoints/passthrough.php?em_setting=config_js", true, true);;
 
 $css_sources = [
     "https://use.fontawesome.com/releases/v5.8.2/css/all.css",
@@ -44,7 +22,7 @@ $css_sources = [
 
 // Additional javascript sources
 $js_sources    = [
-    "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.2.9/dist/tf.min.js",
+    "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.8.0/dist/tf.min.js",
     "https://unpkg.com/popper.js@1.12.6/dist/umd/popper.js",
     $module->getUrl("assets/scripts/templates.js", true, true),
     $module->getUrl('assets/scripts/redcapForm.js', true, true),
@@ -71,7 +49,7 @@ foreach($js_sources as $js){
 }
 ?>
 <style>
-    
+
     #redcap_form{
         /* display:none; */
     }
@@ -201,10 +179,10 @@ foreach($js_sources as $js){
     }
 
     .element_label em{
-        display:block; 
+        display:block;
         font-size:85%;
     }
-    
+
     blockquote.alert{
         border:0 !important;
     }
@@ -226,7 +204,7 @@ foreach($js_sources as $js){
         <div class="col-sm-12 viewer_hd">
             <h1><?=$UI_title?><?=$temp_shard_folder?></h1>
             <p>Powered by the <a href="https://arxiv.org/abs/1901.07031" target="_blank">CheXpert</a> model. Diseases included are based on prevalence in reports and clinical relevance. </p>
-            <?php 
+            <?php
             if(!$selected_model){
             ?>
                 <div class="well alert-danger my-4">
@@ -246,7 +224,7 @@ foreach($js_sources as $js){
                 }
             ?>
         </div>
-        <?php 
+        <?php
             if($selected_model){
         ?>
             <div class="post-model" hidden>
@@ -283,7 +261,7 @@ foreach($js_sources as $js){
                     </div>
                 </div>
 
-                
+
                 <div class="prediction-results col-sm-12">
                     <div id="prediction-list" style="width: 100%; padding-right: 20px">
                         <div class="row">
@@ -310,7 +288,7 @@ foreach($js_sources as $js){
                             </div>
                         </div>
                     </div>
-                    
+
                 </div>
             </div>
             <script>
