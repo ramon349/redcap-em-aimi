@@ -56,7 +56,7 @@ async function loadModel() {
     } catch (error) {
         $(".loading_saved_model").hide();
         $('.model-progress-bar').show();
-
+        console.log(MODEL_CONFIGS.model_path);
         model = await tf.loadLayersModel(MODEL_CONFIGS.model_path, {'onProgress':function(p){
                     $(".model-progress-bar .progress-bar").css("width",`${Math.round(p * 100)}%`);
                     $(".model-progress-bar .stats_progress_bar").css("left",`${Math.round(p * 100)}%`);
@@ -65,11 +65,6 @@ async function loadModel() {
                     console.log("shard url", url);
                     return url;
                 }});
-        // model = await tf.loadLayersModel(MODEL_CONFIGS.model_path, {'onProgress':function(p){
-        //         $(".model-progress-bar .progress-bar").css("width",`${Math.round(p * 100)}%`);
-        //         $(".model-progress-bar .stats_progress_bar").css("left",`${Math.round(p * 100)}%`);
-        //         $(".model-progress-bar .progress-bar").text(`Loading Model (${Math.round(p * 100)}%) ...`);
-        //     }});
         await model.save('indexeddb://current-model');
         $(".model-progress-bar .progress").text(`Warming Up ...`);
         console.log("model not found in local indexeddb, load from cached path", MODEL_CONFIGS.model_path);

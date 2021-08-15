@@ -18,7 +18,6 @@ $ajax_endpoint          = $module->getUrl("endpoints/ajaxHandler.php");
 
 //Should be including recap_config.js, if not exist or new model active, will need to create new
 $selected_model         = $module->getUrl("endpoints/passthrough.php?em_setting=config_js", true, true);
-//$selected_model         = $module->getUrl("temp_config/config.js");
 
 $css_sources = [
     "https://use.fontawesome.com/releases/v5.8.2/css/all.css",

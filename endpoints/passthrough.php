@@ -28,25 +28,23 @@ if($em_setting && !$file_path){
         $file_size  = filesize($file_path);
         $mime_type  = mime_content_type($file_path) ?: 'application/octet-stream';
 
-        header("content-type: $mime_type");
-        header('Content-Disposition: attachment; filename="'.$file_name.'"');
+        header('Accept-Ranges: bytes');
         header("Content-Length: $file_size");
-        header('Content-Transfer-Encoding: binary');
-        header('Connection: Keep-Alive');
-        header('Expires: 0');
-        header('Pragma: public');
+        header("content-type: $mime_type");
+
+        header_remove('Access-Control-Allow-Origin');
+        header_remove('cache-control');
+        header_remove('Connection');
+        header_remove('Expires');
+        header_remove('Keep-Alive');
+        header_remove('Pragma');
+        header_remove('REDCap-Random-Text');
+        header_remove('X-Content-Type-Options');
+        header_remove('X-XSS-Protection');
 
         $shard_file = file_get_contents($file_path);
         var_dump($shard_file);
-        exit();
-
-    //    header('Connection: Keep-Alive');
-    //    header('Expires: 0');
-    //    header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-    //    header("Cache-Control: post-check=0, pre-check=0", false);
-    //    header("Pragma: no-cache");
     }
 }
 exit();
 ?>
-<!--http://localhost/api/?type=module&prefix=redcap_aimi&page=endpoints%2Fpassthrough&filepath=/var/www/html/temp/20210814075708_group1-shard1of7.bin&pid=58&NOAUTH-->
