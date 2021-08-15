@@ -20,9 +20,9 @@ foreach($model_test_names as $options)
 ?>
 <style>
 #alert{
-    position: fixed; 
-    top: 0; 
-    left: 0; 
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
 }
 
@@ -47,7 +47,7 @@ foreach($model_test_names as $options)
 
 .alphaball{
     background:blue;
-    color:#fff; 
+    color:#fff;
     width:34px; height:34px;
     line-height:260%;
 
@@ -89,7 +89,7 @@ foreach($model_test_names as $options)
                         </label>
                     </div>
                 </div>
-                
+
                 <h5 class="text-center col-sm-5">OR</h5>
 
                 <div class="grid-x grid-padding-x">
@@ -103,7 +103,7 @@ foreach($model_test_names as $options)
                         </label>
                     </div>
                 </div>
-            
+
                 <div class="grid-x grid-padding-x">
                     <div class="col-sm-12 row">
                         <p class="offset-sm-2 col-sm-10 mb-3">
@@ -124,9 +124,9 @@ foreach($model_test_names as $options)
                     </div>
                 </div>
             </div>
-            
+
             <hr>
-            
+
             <div class="col-sm-10">
                 <hr>
 
@@ -143,7 +143,7 @@ foreach($model_test_names as $options)
                     <p class="mb-3">*Once a configuration is saved (or a previously saved alias is selected).   The "Apply to Em" button will become active.  Clicking on it will download the model files locally for use with this project.</p>
 
                     <button id="submit" type="button" class="button success rounded mr-2">Save Configuration</button>
-                    <button id="apply" type="button" class="button rounded" disabled>* Apply to EM <i class="fas fa-spinner fa-pulse"></i></button>
+                    <button id="apply" type="button" class="button rounded" disabled>* Activate Selected Model Configuration <i class="fas fa-spinner fa-pulse"></i></button>
                     <button id="delete" type="button" class="button rounded float-right alert" disabled>Delete</button>
                 </div>
             </div>
