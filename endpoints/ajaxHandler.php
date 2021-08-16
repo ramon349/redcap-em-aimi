@@ -32,7 +32,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $alias  = filter_var($_POST['alias'], FILTER_SANITIZE_STRING);
             $info   = $_POST['info'];
             $ret    = $module->applyConfig($uri, $info, $alias);
-            echo json_encode($ret);
+            $redirect_url = $module->getUrl("pages/aimi.php");
+
+            echo json_encode($redirect_url);
             break;
         case 'clearTempFiles':
             $ret = $module->clearTempFiles();

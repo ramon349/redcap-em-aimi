@@ -111,7 +111,7 @@ const AIMI = {
             $('#alert').slideUp("slow");
         }, 3000);
     },
-    
+
     sendRequest: (payload, successCallback, failureCallback) => {
         $.ajax({
             data: payload,
@@ -125,7 +125,7 @@ const AIMI = {
                 failureCallback();
             })
     },
-    
+
     fetchVersions: (path) => {
         let payload = {
             'path' : path,
@@ -217,10 +217,14 @@ const AIMI = {
                 'alias' : alias
             };
             AIMI.sendRequest(payload,
-                () => {
+                (redirect_url) => {
                     //remove loading
                     $("#apply").removeClass("loading");
-                    AIMI.triggerAlert('Success: configuration applied', 'success');
+                    console.log("response", redirect_url);
+                    AIMI.triggerAlert('Success: configuration applied , redirecting to Run Model in a few seconds', 'success');
+                    setTimeout(function(){
+                        location.href = redirect_url;
+                    }, 7000);
                 },
                 () => AIMI.triggerAlert('Error applying config: please contact administrator', 'alert')
             );

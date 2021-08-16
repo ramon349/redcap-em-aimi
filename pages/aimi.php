@@ -10,6 +10,12 @@ $aliases                = $module->getProjectSetting("aliases");
 $current                = $aliases[$selected_alias];
 $shard_paths            = $current["model_json"]["weightsManifest"][0]["paths"];
 
+$temp                   = explode("filepath=", $shard_paths[0]);
+$temp2                  = $temp[1];
+$where_bin              = strpos($temp2, ".bin");
+$check_weight_file      = substr($temp2, 0, $where_bin + strlen(".bin"));
+$weight_file_exists     = file_exists($check_weight_file);
+
 //Some Static URLS
 $placeholder_image      = $module->getUrl("assets/images/placeholder.jpg");
 $dedicated_upload_js    = $module->getUrl("assets/scripts/index_upload.js");
@@ -52,6 +58,25 @@ foreach($js_sources as $js){
     echo '<script src="'.$js.'" crossorigin="anonymous"></script>';
 }
 ?>
+<script>
+    var _weight_file_exists  = "<?= $weight_file_exists ?>";
+    var _uri                 = "<?= $selected_config ?>";
+    var _alias               = "<?= $selected_alias ?>";
+    var _info                = null;
+    /*
+    if indexeddb://current-model not found
+    if current alias HAS model.json with paths for weight files
+    if path to weight files not exist (in redcap temp)
+    then ajax applyConfig
+    */
+    var payload = {type:"applyConfig", uri:_uri, alias:_alias}
+    // $.ajax({
+    //     data: payload,
+    //     method: 'POST',
+    //     url: src, //from php page, ajaxHandler endpoint
+    //     dataType: 'json'
+    // })
+</script>
 <style>
 
     #redcap_form{
