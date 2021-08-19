@@ -42,8 +42,11 @@ if($em_setting && !$file_path){
         header_remove('X-Content-Type-Options');
         header_remove('X-XSS-Protection');
 
-        $shard_file = file_get_contents($file_path);
-        var_dump($shard_file);
+        $handle = fopen($file_path, "rb");
+        $contents = fread($handle, filesize($file_path));
+        fclose($handle);
+
+        echo $contents;
     }
 }
 exit();
