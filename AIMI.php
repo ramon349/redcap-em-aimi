@@ -327,8 +327,10 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
                 //need to wait to do this because temp files will be deleted periodically
                 $passthrough_shard_urls = array();
                 foreach($temp_shard_paths as $temp_path){
-                    $shard_url = $this->getUrl("endpoints/passthrough.php?filepath=$temp_path", true, true);
-                    array_push($passthrough_shard_urls , $shard_url);
+
+                    $shard_url          = $this->getUrl("endpoints/passthrough.php?filepath=$temp_path", true, true);
+                    $shard_name_only    = str_replace(APP_PATH_TEMP, "", $shard_url);
+                    array_push($passthrough_shard_urls , $shard_name_only);
                 }
 
                 $model_json                                     = $existing_aliases[$active_alias]["model_json"];

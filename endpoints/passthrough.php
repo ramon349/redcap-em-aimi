@@ -21,8 +21,8 @@ if($em_setting && !$file_path){
         echo json_encode($model_config["model_json"]);
     }
 }elseif($file_path){
-    $temp       = explode("/", $file_path);
-    $file_name  = array_pop($temp);
+    $file_name  = $file_path;
+    $file_path  = APP_PATH_TEMP . $file_name;
 
     if(file_exists($file_path)){
         $file_size  = filesize($file_path);
