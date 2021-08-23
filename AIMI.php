@@ -149,9 +149,6 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
                 //and delete the redcap_config.js
                 $result = $this->setProjectSetting('active_alias', null);
 
-                $em_del_path = __DIR__ . '/temp_config/redcap_config.js';
-                unlink($em_del_path);
-
                 $this->emDebug("active alias/model deleted");
             }
         } else {
@@ -237,14 +234,6 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
 
     public function applyConfig($uri, $info, $active_alias)
     {
-        //1 get existing aliasess
-        //2 check if $active_alias exists
-        //3 does existing alias have existing edoc_ids
-        //4 if no then download and save edoc_ids to the alias and resave to project setting
-        //5 take the edoc_ids -> copytoTemp
-        //6 modify and save config.js and model.json and save to alias as well
-
-
         $existing_aliases = $this->getProjectSetting('aliases');
         $temp_shard_paths = array();
         try{

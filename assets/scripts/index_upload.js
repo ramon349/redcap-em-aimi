@@ -51,23 +51,32 @@ async function loadModel() {
     // loadLayersModel() or loadGraphModel() depending on which model the users imports.
     // More here: https://js.tensorflow.org/api/latest/
     try {
+        console.log("trying to find the indexddb");
         $(".loading_saved_model").show();
         model = await tf.loadLayersModel('indexeddb://current-model');
     } catch (error) {
+        //IF COULDNT FIND A CACHED ONE
+        //THEN AJAX CALL APPLY CONFIG ON THE CURRENT SAVED ALIAS
+
+        // _alias, _uri, _info comes from aimi.php page
+        if(_alias){
+            applyActiveConfig(_alias, _uri, _info);
+        }
+
         $(".loading_saved_model").hide();
         $('.model-progress-bar').show();
         console.log(MODEL_CONFIGS.model_path);
 
         model = await tf.loadLayersModel(MODEL_CONFIGS.model_path, {'onProgress':function(p){
-                    $(".model-progress-bar .progress-bar").css("width",`${Math.round(p * 100)}%`);
-                    $(".model-progress-bar .stats_progress_bar").css("left",`${Math.round(p * 100)}%`);
-                    $(".model-progress-bar .progress-bar").text(`Loading Model (${Math.round(p * 100)}%) ...`);
-                }
-                , 'weightUrlConverter' : function(url){
-                    // console.log(url);
-                    return url;
-                }
-                });
+                $(".model-progress-bar .progress-bar").css("width",`${Math.round(p * 100)}%`);
+                $(".model-progress-bar .stats_progress_bar").css("left",`${Math.round(p * 100)}%`);
+                $(".model-progress-bar .progress-bar").text(`Loading Model (${Math.round(p * 100)}%) ...`);
+            }
+            , 'weightUrlConverter' : function(url){
+                // console.log(url);
+                return url;
+            }
+        });
         await model.save('indexeddb://current-model');
         $(".model-progress-bar .progress").text(`Warming Up ...`);
         console.log("model not found in local indexeddb, load from cached path", MODEL_CONFIGS.model_path);

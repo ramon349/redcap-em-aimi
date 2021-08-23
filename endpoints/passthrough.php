@@ -5,26 +5,36 @@ namespace Stanford\AIMI;
 $em_setting = (isset($_GET["em_setting"])) ? filter_var($_GET["em_setting"], FILTER_SANITIZE_STRING) : null;
 $file_path  = (isset($_GET["filepath"])) ? filter_var($_GET["filepath"], FILTER_SANITIZE_STRING) : null;
 
-$selected_alias = $module->getProjectSetting("active_alias");
+$active_alias   = $module->getProjectSetting("active_alias");
 $aliases        = $module->getProjectSetting('aliases');
-$model_config   = $aliases[$selected_alias];
-
+$current        = $aliases[$active_alias];
+$shard_paths    = array_key_exists("model_json",$current) && !empty($current["model_json"]) ? $current["model_json"]["weightsManifest"][0]["paths"] : array();
 
 if($em_setting && !$file_path){
     if($em_setting == "config_js"){
         header("content-type: application/javascript");
-        echo $model_config["config_js"];
+        echo $current["config_js"];
     }
 
     if($em_setting == "model_json"){
         header("content-type: application/json");
-        echo json_encode($model_config["model_json"]);
+        echo json_encode($current["model_json"]);
     }
 }elseif($file_path){
     $file_name  = $file_path;
     $file_path  = APP_PATH_TEMP . $file_name;
 
-    if(file_exists($file_path)){
+    // Make sure the requested file is one of the desired active model's shard paths
+    $model_file_check = false;
+    foreach($shard_paths as $shard_path ){
+        if(strpos($shard_path , $file_name) > -1){
+            $model_file_check = true;
+            break;
+        }
+    }
+
+    // MAKE SURE THE FILE PATH EXISTS
+    if($model_file_check && file_exists($file_path)){
         $file_size  = filesize($file_path);
         $mime_type  = mime_content_type($file_path) ?: 'application/octet-stream';
 
@@ -45,7 +55,6 @@ if($em_setting && !$file_path){
         $handle = fopen($file_path, "rb");
         $contents = fread($handle, filesize($file_path));
         fclose($handle);
-
         echo $contents;
     }
 }

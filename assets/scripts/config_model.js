@@ -249,6 +249,9 @@ const AIMI = {
                 ()=> {
                     $("#apply").attr("disabled",false);
                     AIMI.triggerAlert('Success : configuration saved, please refresh', 'success');
+                    setTimeout(function(){
+                        location.href = location.href;
+                    }, 2000);
                 },
                 ()=> AIMI.triggerAlert('Error saving config: please contact administrator', 'alert')
             );

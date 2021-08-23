@@ -2,29 +2,25 @@
 namespace Stanford\AIMI;
 /** @var \Stanford\AIMI\AIMI $module */
 
-//Active Model Meta Data
-$selected_config        = $module->getProjectSetting("config_uri");
-$selected_alias         = $module->getProjectSetting("active_alias");
-$aliases                = $module->getProjectSetting("aliases");
-
-$current                = $aliases[$selected_alias];
-$shard_paths            = $current["model_json"]["weightsManifest"][0]["paths"];
-
-$temp                   = explode("filepath=", $shard_paths[0]);
-$temp2                  = $temp[1];
-$where_bin              = strpos($temp2, ".bin");
-$check_weight_file      = substr($temp2, 0, $where_bin + strlen(".bin"));
-$weight_file_exists     = file_exists($check_weight_file);
-
 //Some Static URLS
 $placeholder_image      = $module->getUrl("assets/images/placeholder.jpg");
 $dedicated_upload_js    = $module->getUrl("assets/scripts/index_upload.js");
 $url_configmodel        = $module->getUrl("pages/config_model.php");
 $ajax_endpoint          = $module->getUrl("endpoints/ajaxHandler.php");
 
+//Active Model Meta Data
+$selected_config        = !empty($module->getProjectSetting("config_uri")) ? $module->getProjectSetting("config_uri") : null;;
+$active_alias           = !empty($module->getProjectSetting("active_alias")) ? $module->getProjectSetting("active_alias") : null;
+$aliases                = !empty($module->getProjectSetting("aliases")) ? $module->getProjectSetting("aliases") : array();
+$alias_names            = array_keys($aliases);
+
+$current                = $aliases[$active_alias];
+$current_info           = array_key_exists("info",$current) ? $current["info"] : array();
+$current_config_uri     = array_key_exists("url",$current) ? $current["url"] : null;
+$shard_paths            = array_key_exists("model_json",$current) ? $current["model_json"]["weightsManifest"][0]["paths"] : array();
+
 //Should be including recap_config.js, if not exist or new model active, will need to create new
-$selected_model         = $module->getUrl("endpoints/passthrough.php?em_setting=config_js", true, true);
-//$selected_model         = $module->getUrl("temp_config/config.js", true, true);
+$selected_model         = array_key_exists("config_js", $current) ? $module->getUrl("endpoints/passthrough.php?em_setting=config_js", true, true) : null;
 
 $css_sources = [
     "https://use.fontawesome.com/releases/v5.8.2/css/all.css",
@@ -60,23 +56,39 @@ foreach($js_sources as $js){
 }
 ?>
 <script>
-    var _weight_file_exists  = "<?= $weight_file_exists ?>";
-    var _uri                 = "<?= $selected_config ?>";
-    var _alias               = "<?= $selected_alias ?>";
-    var _info                = null;
-    /*
-    if indexeddb://current-model not found
-    if current alias HAS model.json with paths for weight files
-    if path to weight files not exist (in redcap temp)
-    then ajax applyConfig
-    */
-    var payload = {type:"applyConfig", uri:_uri, alias:_alias}
-    // $.ajax({
-    //     data: payload,
-    //     method: 'POST',
-    //     url: src, //from php page, ajaxHandler endpoint
-    //     dataType: 'json'
-    // })
+    var ajax_endpoint       = "<?=$ajax_endpoint?>";
+
+    //CURRENT MODEL DETAILS
+    var _alias              = "<?= $active_alias ?>";
+    var _uri                = "<?= $current_config_uri ?>";
+    var _info               = <?= json_encode($current_info) ?>;
+
+    //ACTIVATE NEW SAVED MODELS
+    function applyActiveConfig(alias, uri, info, loading){
+        let payload = {
+            'uri'   : uri,
+            'info'  : info,
+            'type'  : 'applyConfig',
+            'alias' : alias
+        };
+
+        $.ajax({
+            method: 'POST',
+            url: ajax_endpoint,
+            data: payload,
+            dataType: 'json'
+        }).done(function(redirect_url){
+            //remove loading
+            if(loading){
+                loading.removeClass("loading");
+            }
+            setTimeout(function(){
+                location.href = redirect_url;
+            }, 3000);
+        }).fail(function(err){
+            console.log(err);
+        });
+    }
 </script>
 <style>
 
@@ -227,7 +239,29 @@ foreach($js_sources as $js){
         display:inline-block;
     }
 
+    .activate_model i {
+        display:none;
+    }
+    .activate_model.loading i {
+        display:inline-block;
+    }
 
+    .activate_model span:before{
+        content:"Activate";
+    }
+    .activate_model:disabled {
+        background:#ccc;
+        border:1px solid #999;
+    }
+    .activate_model:disabled span:before{
+        content:"Active";
+    }
+
+    #model_select{
+        position:absolute;
+        top:15px;
+        right:15px;
+    }
 </style>
 <main>
     <div class="col-sm-11 my-3 row">
@@ -235,13 +269,26 @@ foreach($js_sources as $js){
             <h1><?=$UI_title?><?=$temp_shard_folder?></h1>
             <p>Powered by the <a href="https://arxiv.org/abs/1901.07031" target="_blank">CheXpert</a> model. Diseases included are based on prevalence in reports and clinical relevance. </p>
             <?php
-            if(!$selected_model){
+            if(empty($alias_names)){
             ?>
                 <div class="well alert-danger my-4">
-                    <h6>You must first configure/select a model and "apply to EM"*</h6>
-                    <p>Go to <a href='<?=$url_configmodel?>'>Config/Select Model</a> to do so.</p>
-                    <br>
-                    <p><em>*Once a model is applied, it may take a few minutes to compile, if you have already selected a model try refreshing this page in a 3 minutes</em></p>
+                    <h4>No Models have been Configured.</h4>
+                    <h5>Go to <a href='<?=$url_configmodel?>'>Config/Select Model</a> to configure and save at least one pre-trained model*.</h5>
+                </div>
+            <?php
+            }elseif(!$active_alias){
+            ?>
+                <div class="well alert-danger my-4">
+                    <h4>Please activate a pre-saved model alias.</h4>
+                    <select class="model_select"  style="vertical-align:middle">
+                        <?php
+
+                            foreach($aliases as $alias => $meta){
+                                echo "<option $selected data-url='".$meta["url"]."' data-info='".json_encode($meta["info"])."'>$alias</option>";
+                            }
+                        ?>
+                    </select>
+                    <button class="btn btn-xs btn-info activate_model"><i class="fas fa-spinner fa-pulse "></i> Activate Model</button>
                 </div>
             <?php
                 }else{
@@ -249,7 +296,7 @@ foreach($js_sources as $js){
                 <div class="progress mb-2 model-progress-bar" style="">
                     <div class="progress-bar pl-3" style="text-align: left">Loading Model</div>
                 </div>
-                <div class="loading_saved_model"><i class="fas fa-spinner fa-pulse"></i> Loading Stored Model</div>
+                <div class="loading_saved_model"><i class="fas fa-spinner fa-pulse "></i> Loading Stored Model</div>
             <?php
                 }
             ?>
@@ -257,6 +304,18 @@ foreach($js_sources as $js){
         <?php
             if($selected_model){
         ?>
+            <div id="model_select">
+                <select class="model_select"  style="vertical-align:middle">
+                    <?php
+
+                    foreach($aliases as $alias => $meta){
+                        $selected = $alias == $active_alias ? "selected" : null;
+                        echo "<option $selected data-url='".$meta["url"]."' data-info='".json_encode($meta["info"])."'>$alias</option>";
+                    }
+                    ?>
+                </select>
+                <button class="btn btn-xs btn-info activate_model" disabled><i class="fas fa-spinner fa-pulse "></i> <span></span> Model</button>
+            </div>
             <div class="post-model" hidden>
                 <div class="col-sm-12 row">
                     <div class="col-sm-4 main_image">
@@ -269,7 +328,7 @@ foreach($js_sources as $js){
                     <div class="col-sm-8 model_details">
                         <h5>ML Model Details:</h5>
                         <ul>
-                        <li><b>Saved Model Alias:</b> <?=$selected_alias ?? "N/A" ?></li>
+                        <li><b>Saved Model Alias:</b> <?=$active_alias ?? "N/A" ?></li>
                         <li><b>Model Path:</b> <span id="selected_config"><?=$selected_config?></span></li>
                         </ul>
 
@@ -321,20 +380,18 @@ foreach($js_sources as $js){
 
                 </div>
             </div>
-            <script>
-                var ajax_endpoint = "<?=$ajax_endpoint?>";
-            </script>
+
             <script type="text/javascript" src="<?=$selected_model?>"></script>
             <script type="text/javascript" src="<?=$dedicated_upload_js ?>"></script>
+
+            <hr>
+
+            <div id="redcap_container"></div>
         <?php
             }
         ?>
 
-        <hr>
 
-        <div id="redcap_container">
-
-        </div>
     </div>
 </main>
 <script>
@@ -348,6 +405,25 @@ foreach($js_sources as $js){
             //form inits disabled
             RCForm.enableForm();
             RCForm.clearForm();
+        });
+
+        //ACTIAVTE DIFFERENT MODEL ON SELECT
+        $(".activate_model").click(function(e){
+            e.preventDefault();
+            var _el = $(this);
+            _el.addClass("loading");
+
+            var _model = $(".model_select option:selected");
+            var _uri    = _model.data("url");
+            var _info   = _model.data("info");
+            var _alias  = _model.text();
+
+            applyActiveConfig(_alias, _uri, _info, _el);
+        });
+
+        //CHANGE BUTTON UI ON SELECT CHAGNE
+        $(".model_select").change(function(e){
+            $(".activate_model").attr("disabled", false);
         });
     });
 </script>

@@ -3,6 +3,9 @@
 namespace Stanford\AIMI;
 /** @var \Stanford\AIMI\AIMI $module */
 
+//Active Model Meta Data
+$active_alias           = !empty($module->getProjectSetting("active_alias"))    ? $module->getProjectSetting("active_alias") : null;
+
 $repo_model_names       = $module->fetchModelNames();
 $previously_saved_names = $module->fetchSavedEntries();
 $model_test_names       = $previously_saved_names ? array_keys($previously_saved_names) : array();
@@ -54,9 +57,14 @@ foreach($model_test_names as $options)
 }
 </style>
 <main>
+    <?php if($active_alias) { ?>
+    <div class="alert alert-info col-sm-9 my-3" style="border:initial !important">
+        Current Active Model Alias: <b><?=$active_alias ?></b>
+    </div>
+    <?php } ?>
     <div class="col-sm-11 my-3 row">
         <h3 class="px-3 mb-1"><span class='ordball'>1</span> Configure or Select Pre-trained Models to use with this Module</h3>
-        <p class="px-3 mb-3">In order to run a model, please select from the "Pre-Trained Models" (A) or "Previously Saved Configurations" (B) drop downs</p>
+
 
         <div id='alert' class="callout" data-closable style="display: none">
             <button class="close-button" aria-label="Close alert" type="button" data-close>
@@ -68,6 +76,7 @@ foreach($model_test_names as $options)
             <input  id="path" type="hidden" >
             <div class="col-sm-10">
                 <div class="grid-x grid-padding-x">
+                    <p class="col-sm-10 offset-sm-2 mb-4">In order to run a model, please select from the "Pre-Trained Models" (A) or "Previously Saved Configurations" (B) drop downs</p>
                     <div class="col-sm-12 row">
                         <div class="col-sm-1 offset-sm-1"><span class="alphaball">A</span></div>
                         <label class="col-sm-5">
@@ -140,10 +149,10 @@ foreach($model_test_names as $options)
                     </div>
                 </div>
                 <div class="col-sm-12 border-top pt-4 mt-4">
-                    <p class="mb-3">*Once a configuration is saved (or a previously saved alias is selected).   The "Apply to Em" button will become active.  Clicking on it will download the model files locally for use with this project.</p>
+                    <p class="mb-3">*Once a configuration is saved.  Go to <a href="<?= $module->getUrl("pages/aimi.php"); ?>">Run Model</a> and chose a model alias from the dropdown.</p>
 
                     <button id="submit" type="button" class="button success rounded mr-2">Save Configuration</button>
-                    <button id="apply" type="button" class="button rounded" disabled>* Activate Selected Model Configuration <i class="fas fa-spinner fa-pulse"></i></button>
+<!--                    <button id="apply" type="button" class="button rounded" disabled>* Activate Selected Model Configuration <i class="fas fa-spinner fa-pulse"></i></button>-->
                     <button id="delete" type="button" class="button rounded float-right alert" disabled>Delete</button>
                 </div>
             </div>
