@@ -84,7 +84,7 @@ foreach($js_sources as $js){
             }
             setTimeout(function(){
                 location.href = redirect_url;
-            }, 3000);
+            }, 2000);
         }).fail(function(err){
             console.log(err);
         });

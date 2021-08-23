@@ -59,9 +59,15 @@ async function loadModel() {
         //THEN AJAX CALL APPLY CONFIG ON THE CURRENT SAVED ALIAS
 
         // _alias, _uri, _info comes from aimi.php page
-        if(_alias){
+        //Adding session cache flag to avoid double reloading
+        var session_cache_model = sessionStorage.getItem('session_cache_model');
+        if(_alias && !session_cache_model){
             applyActiveConfig(_alias, _uri, _info);
+            sessionStorage.setItem('session_cache_model', 1);
+            return;
         }
+        sessionStorage.removeItem('session_cache_model');
+
 
         $(".loading_saved_model").hide();
         $('.model-progress-bar').show();
