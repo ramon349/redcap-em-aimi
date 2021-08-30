@@ -8,6 +8,9 @@ $dedicated_upload_js    = $module->getUrl("assets/scripts/index_upload.js");
 $url_configmodel        = $module->getUrl("pages/config_model.php");
 $ajax_endpoint          = $module->getUrl("endpoints/ajaxHandler.php");
 
+$UI_title               = !empty($module->getProjectSetting("run_model_page_title")) ? $module->getProjectSetting("run_model_page_title") : "XrayFusion";
+$UI_subtitle            = !empty($module->getProjectSetting("run_model_page_subtitle")) ? $module->getProjectSetting("run_model_page_subtitle")  : "Powered by the <a href='https://arxiv.org/abs/1901.07031' target='_blank'>CheXpert</a> model. Diseases included are based on prevalence in reports and clinical relevance.";
+
 //Active Model Meta Data
 $selected_config        = !empty($module->getProjectSetting("config_uri")) ? $module->getProjectSetting("config_uri") : null;;
 $active_alias           = !empty($module->getProjectSetting("active_alias")) ? $module->getProjectSetting("active_alias") : null;
@@ -45,7 +48,7 @@ $rcjs_renderer_config = [
    ,'metadata'         => $metadata
 ];
 
-$UI_title = "XrayFusion";
+
 
 //Include Asset Files
 foreach($css_sources as $css){
@@ -267,7 +270,7 @@ foreach($js_sources as $js){
     <div class="col-sm-11 my-3 row">
         <div class="col-sm-12 viewer_hd">
             <h1><?=$UI_title?><?=$temp_shard_folder?></h1>
-            <p>Powered by the <a href="https://arxiv.org/abs/1901.07031" target="_blank">CheXpert</a> model. Diseases included are based on prevalence in reports and clinical relevance. </p>
+            <p><?=$UI_subtitle?></p>
             <?php
             if(empty($alias_names)){
             ?>
@@ -325,7 +328,7 @@ foreach($js_sources as $js){
                         <div id="xray_canvas" style="display: none;" ></div>
                         <button class="btn btn-info select-xray"><i class="fas fa-x-ray"></i> Select X-ray Image</button>
                     </div>
-                    <div class="col-sm-8 model_details">
+                    <div class="col-sm-6 model_details">
                         <h5>ML Model Details:</h5>
                         <ul>
                         <li><b>Saved Model Alias:</b> <?=$active_alias ?? "N/A" ?></li>
@@ -386,7 +389,7 @@ foreach($js_sources as $js){
 
             <hr>
 
-            <div id="redcap_container"></div>
+            <div id="redcap_container" class="col-sm-12"></div>
         <?php
             }
         ?>

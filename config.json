@@ -68,13 +68,25 @@
 	],
 
 	"project-settings": [
-		{
-			"key": "enable-project-debug-logging",
-			"name": "<b>Enable Debug Logging</b><br><i>(optional)</i> Requires installation and configuration of emLogger",
-			"required": false,
-			"type": "checkbox"
-		},
-		{
+        {
+            "key": "run_model_page_title",
+            "name": "<b>Page Title on Model Page</b><br><i>Default: XrayFusion</i>",
+            "required": false,
+            "type": "text"
+        },
+        {
+            "key": "run_model_page_subtitle",
+            "name": "<b>Page Subtitle on Model Page</b><br><i>Default: Powered by the CheXpert model. Diseases included are based on prevalence in reports and clinical relevance.</i>",
+            "required": false,
+            "type": "text"
+        },
+        {
+            "key": "model_repo_endpoint",
+            "name": "<b>Model Repo Endpoint</b><br><i>Default: https://api.github.com/repos/susom/redcap-aimi-models/contents</i>",
+            "required": false,
+            "type": "text"
+        },
+        {
             "key": "stanford_api_endpoint",
             "name": "<b>API endpoint for Stanford Project</b> ",
             "required": false,
@@ -85,6 +97,12 @@
             "name": "<b>Unique Stanford Partner Token</b>",
             "required": false,
             "type": "text"
+        },
+        {
+            "key": "enable-project-debug-logging",
+            "name": "<b>Enable Debug Logging</b><br><i>(optional)</i> Requires installation and configuration of emLogger",
+            "required": false,
+            "type": "checkbox"
         }
 	],
 

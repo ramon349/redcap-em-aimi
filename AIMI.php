@@ -16,11 +16,14 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
 
     /** @var Client $client */
     private $client;
+    private $model_repo_endpoint;
+    private $run_model_title;
+    private $run_model_subtitle;
 
     public function __construct() {
 		parent::__construct();
         $this->RCJS 	= new \Stanford\AIMI\REDCapJsRenderer($this);
-	}
+    }
 
     //Pass through to REDCapJsRenderer Class
     public function getMetadata($something){
@@ -46,7 +49,7 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
             //TODO RATE LIMITED TO 60 PER HOUR MIGHT HAVE TO ADUST
             //Grab all root repository contents, non recursively
             $rate_limit = $this->getClient()->createRequest("GET", 'https://api.github.com/rate_limit');
-            $github_entries = $this->getClient()->createRequest("GET", MODEL_REPO_ENDPOINT);
+            $github_entries = $this->getClient()->createRequest("GET", $this->model_repo_endpoint);
             $models = array();
 
             //Generate new model for each subtree to record versions
@@ -76,7 +79,7 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
         try {
             //Fetch all contents from repo tree
             $this->setClient(new Client($this));
-            $contents = $this->getClient()->createRequest("GET", MODEL_REPO_ENDPOINT . '/' . rawurlencode($path));
+            $contents = $this->getClient()->createRequest("GET", $this->model_repo_endpoint . '/' . rawurlencode($path));
             $versions = array();
             foreach($contents as $entry) {
                 if($entry['type'] === 'dir')
@@ -101,7 +104,7 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
     {
         try {
             $this->setClient(new Client($this));
-            $contents = $this->getClient()->createRequest("GET", MODEL_REPO_ENDPOINT . '/' . $path);
+            $contents = $this->getClient()->createRequest("GET", $this->model_repo_endpoint . '/' . $path);
             $payload = array();
             $payload['info'] = array();
 
