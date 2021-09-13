@@ -67,10 +67,8 @@ foreach($js_sources as $js){
     var _info               = <?= json_encode($current_info) ?>;
 
     //ACTIVATE NEW SAVED MODELS
-    function applyActiveConfig(alias, uri, info, loading){
+    function applyActiveConfig(alias, loading){
         let payload = {
-            'uri'   : uri,
-            'info'  : info,
             'type'  : 'applyConfig',
             'alias' : alias
         };
@@ -287,7 +285,7 @@ foreach($js_sources as $js){
                         <?php
 
                             foreach($aliases as $alias => $meta){
-                                echo "<option $selected data-url='".$meta["url"]."' data-info='".json_encode($meta["info"])."'>$alias</option>";
+                                echo "<option $selected value='$alias'>$alias</option>";
                             }
                         ?>
                     </select>
@@ -313,7 +311,7 @@ foreach($js_sources as $js){
 
                     foreach($aliases as $alias => $meta){
                         $selected = $alias == $active_alias ? "selected" : null;
-                        echo "<option $selected data-url='".$meta["url"]."' data-info='".json_encode($meta["info"])."'>$alias</option>";
+                        echo "<option $selected value='$alias'>$alias</option>";
                     }
                     ?>
                 </select>
@@ -417,11 +415,9 @@ foreach($js_sources as $js){
             _el.addClass("loading");
 
             var _model = $(".model_select option:selected");
-            var _uri    = _model.data("url");
-            var _info   = _model.data("info");
             var _alias  = _model.text();
 
-            applyActiveConfig(_alias, _uri, _info, _el);
+            applyActiveConfig(_alias, _el);
         });
 
         //CHANGE BUTTON UI ON SELECT CHAGNE

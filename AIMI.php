@@ -320,7 +320,7 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
                 $passthrough_shard_urls = array();
                 foreach($temp_shard_paths as $temp_path){
 
-                    $shard_url          = $this->getUrl("endpoints/passthrough.php?filepath=$temp_path", true, true);
+                    $shard_url          = $this->getUrl("endpoints/passthrough.php?file=$temp_path", true, true);
                     $shard_name_only    = str_replace(APP_PATH_TEMP, "", $shard_url);
                     array_push($passthrough_shard_urls , $shard_name_only);
                 }

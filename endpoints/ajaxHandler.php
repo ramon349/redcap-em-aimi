@@ -28,12 +28,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             echo json_encode($ret);
             break;
         case 'applyConfig':
-            $uri    = filter_var($_POST['uri'], FILTER_SANITIZE_STRING);
-            $alias  = filter_var($_POST['alias'], FILTER_SANITIZE_STRING);
-            $info   = $_POST['info'];
-            $ret    = $module->applyConfig($uri, $info, $alias);
-            $redirect_url = $module->getUrl("pages/aimi.php");
+            $alias          = filter_var($_POST['alias'], FILTER_SANITIZE_STRING);
+            $aliases        = !empty($module->getProjectSetting("aliases")) ? $module->getProjectSetting("aliases") : array();
 
+            if(!empty($aliases) && isset($aliases[$alias]) ){
+                $current    = $aliases[$alias];
+                $uri        = $current["url"];
+                $info       = $current["info"];
+                $ret        = $module->applyConfig($uri, $info, $alias);
+
+            }
+            
+            $redirect_url   = $module->getUrl("pages/aimi.php");
             echo json_encode($redirect_url);
             break;
         case 'clearTempFiles':

@@ -64,7 +64,8 @@
 
 	"no-auth-pages": [
 		"endpoints/syncData",
-		"endpoints/passthrough"
+		"endpoints/passthrough",
+        "pages/aimi"
 	],
 
 	"project-settings": [

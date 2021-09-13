@@ -3,7 +3,7 @@ namespace Stanford\AIMI;
 /** @var \Stanford\AIMI\AIMI $module */
 
 $em_setting = (isset($_GET["em_setting"])) ? filter_var($_GET["em_setting"], FILTER_SANITIZE_STRING) : null;
-$file_path  = (isset($_GET["filepath"])) ? filter_var($_GET["filepath"], FILTER_SANITIZE_STRING) : null;
+$file_name  = (isset($_GET["file"])) ? filter_var($_GET["file"], FILTER_SANITIZE_STRING) : null;
 
 $active_alias   = $module->getProjectSetting("active_alias");
 $aliases        = $module->getProjectSetting('aliases');
@@ -20,23 +20,20 @@ if($em_setting && !$file_path){
         header("content-type: application/json");
         echo json_encode($current["model_json"]);
     }
-}elseif($file_path){
-    $file_name  = $file_path;
-    $file_path  = APP_PATH_TEMP . $file_name;
-
+}elseif($file_name){
     // Make sure the requested file is one of the desired active model's shard paths
-    $model_file_check = false;
+    $model_file_check = null;
     foreach($shard_paths as $shard_path ){
         if(strpos($shard_path , $file_name) > -1){
-            $model_file_check = true;
+            $model_file_check = APP_PATH_TEMP . $file_name;
             break;
         }
     }
 
     // MAKE SURE THE FILE PATH EXISTS
-    if($model_file_check && file_exists($file_path)){
-        $file_size  = filesize($file_path);
-        $mime_type  = mime_content_type($file_path) ?: 'application/octet-stream';
+    if($model_file_check && file_exists($model_file_check)){
+        $file_size  = filesize($model_file_check);
+        $mime_type  = mime_content_type($model_file_check) ?: 'application/octet-stream';
 
         header('Accept-Ranges: bytes');
         header("Content-Length: $file_size");
@@ -52,8 +49,8 @@ if($em_setting && !$file_path){
         header_remove('X-Content-Type-Options');
         header_remove('X-XSS-Protection');
 
-        $handle = fopen($file_path, "rb");
-        $contents = fread($handle, filesize($file_path));
+        $handle = fopen($model_file_check, "rb");
+        $contents = fread($handle, filesize($model_file_check));
         fclose($handle);
         echo $contents;
     }
