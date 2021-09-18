@@ -47,8 +47,13 @@ $rcjs_renderer_config = [
    ,'readonly'         => array("record_id", "base64_image", "model_results", "model_config", "model_top_predictions","model_prediction_time")
    ,'metadata'         => $metadata
 ];
+$fields_in_project          = array_keys($metadata);
 
-
+//CHECK TO SEE IF PROJECT EVEN HAS THE REQUIRE FIELDS BEFORE TRYING TO LOAD
+$project_required_fields    = $module->getProjectRequiredFields();
+$intersect                  = array_intersect($fields_in_project,$project_required_fields);
+$has_required_fields        = count($project_required_fields) == count($intersect);
+$required_fields_zip        = $module->getUrl("assets/REDCap_AIMI_Required_Fields_Instrument.zip");
 
 //Include Asset Files
 foreach($css_sources as $css){
@@ -79,7 +84,7 @@ foreach($js_sources as $js){
         }).done(function(redirect_url){
             //remove loading
             if(loading){
-                console.log("what the fuck is loading?");
+                // console.log("what is loading?");
                 // loading.removeClass("loading");
             }
             setTimeout(function(){
@@ -277,7 +282,7 @@ foreach($js_sources as $js){
             ?>
                 <div class="well alert-danger my-4">
                     <h4>No Models have been Configured.</h4>
-                    <h5>Go to <a href='<?=$url_configmodel?>'>Config/Select Model</a> to configure and save at least one pre-trained model*.</h5>
+                    <h5>Go to <a href='<?=$url_configmodel?>'>Select & Activate Model</a> to save a pre-trained model*.</h5>
                 </div>
             <?php
             }else{
@@ -363,8 +368,27 @@ foreach($js_sources as $js){
 
             <hr>
 
-            <div id="redcap_container" class="col-sm-12"></div>
-        <?php
+            <?php
+                if($has_required_fields){
+            ?>
+                <div id="redcap_container" class="col-sm-12"></div>
+            <?php
+                }else{
+            ?>
+                <div id="missing_fields col-sm-12 mt-5">
+                    <hr>
+                    <p class="alert alert-danger h5">This project is missing one or more of the following required fields needed to standardize recorded observation data. You may still interact and experiment with the model above.  However to allow for saving data, Please download and install the <a class="h5" href="<?=$required_fields_zip?>">REDCap_AIMI_Required_Fields_Instrument.zip</a>.</p>
+                    <ul>
+                        <?php
+                            foreach($project_required_fields as $field){
+                                echo "<li>$field</li>";
+                            }
+                        ?>
+                    </ul>
+                    <hr>
+                </div>
+            <?php
+                }
             }
         ?>
 

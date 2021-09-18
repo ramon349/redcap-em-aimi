@@ -77,7 +77,7 @@ class REDCapJsRenderer
         );
         $result = \REDCap::saveData($project_id,'json', json_encode($saveData), 'overwrite');
         $result["record_id"] = $record;
-        
+
         return $result;
         // $hash = isset($data['hash']@$data['hash'];
     }
@@ -92,7 +92,7 @@ class REDCapJsRenderer
         $model_results          = $fields["model_results"];
         $model_top_predictions  = $fields["model_top_predictions"];
         $model_prediction_time  = $fields["model_prediction_time"];
-        
+
         if(!empty($partner_token) && !empty($api_url)){
             $data 			    = array(
                 "partner_token" 	    => $partner_token,
@@ -102,7 +102,7 @@ class REDCapJsRenderer
                 "model_prediction_time" => $model_prediction_time,
                 "partner_ground_truth"  => $partner_ground_truth
             );
-    
+
             $ch             = curl_init($api_url);
             $header_data    = array();
             curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
@@ -114,7 +114,7 @@ class REDCapJsRenderer
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_HEADER, 0);
             curl_setopt($ch, CURLOPT_VERBOSE, 0);
-            
+
             $info 	= curl_getinfo($ch);
             $errno  = curl_errno($ch);
             $err    = curl_error($ch);
@@ -141,7 +141,7 @@ class REDCapJsRenderer
         // Get the project object
         global $Proj;
         $_Proj          = array_key_exists("project_id",$Proj) ? json_decode(json_encode($Proj),true) : new \Project();
-        
+
         // Let's assemble an array of valid fields for this form, starting with event_id:
         $valid_fields   = \REDCap::getValidFieldsByEvents($project_id, $event_id);
 
@@ -164,7 +164,7 @@ class REDCapJsRenderer
      * @throws Exception
      */
     public function getMetadata($hash) {
-        global $Proj;
+        global $Proj , $module;
 
         $_Proj      = array_key_exists("project_id",$Proj) ? json_decode(json_encode($Proj),true) : new \Project();
         $project_id = $_Proj["project_id"];
@@ -182,7 +182,6 @@ class REDCapJsRenderer
 
         // Get the valid fields for this event/form combination
         $valid_fields       = $this->getValidFields($project_id, $event_id, $form_name);
-
 
         // Let's filter out only those fields that are in the valid_fields array above from all Metadata
         $valid_metadata = array_intersect_key($metadata, array_flip($valid_fields));
@@ -211,7 +210,7 @@ class REDCapJsRenderer
             }
         }
 
-        // $module->emDebug($valid_metadata);
+//         $module->emDebug($valid_metadata);
         $result = $valid_metadata;
         return $result;
     }

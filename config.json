@@ -45,13 +45,13 @@
 		        "show-header-and-footer": true
 			},
 			{
-		        "name": "Config/Select Model",
+		        "name": "Select & Activate Model",
 		        "icon": "fas fa-laptop-code",
 		        "url" : "pages/config_model.php",
 		        "show-header-and-footer": true
 			},
 			{
-		        "name": "Run Model",
+		        "name": "Run Active Model",
 		        "icon": "fas fa-arrow-alt-circle-right",
 		        "url" : "pages/aimi.php",
 		        "show-header-and-footer": true

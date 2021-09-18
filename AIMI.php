@@ -19,11 +19,14 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
     private $model_repo_endpoint;
     private $run_model_title;
     private $run_model_subtitle;
+    private $required_project_fields;
 
     public function __construct() {
 		parent::__construct();
         $this->RCJS 	= new \Stanford\AIMI\REDCapJsRenderer($this);
         $this->model_repo_endpoint = MODEL_REPO_ENDPOINT;
+
+        $this->required_project_fields = array("record_id","model_config","model_results","model_top_predictions","model_prediction_time","partner_ground_truth");
     }
 
     //Pass through to REDCapJsRenderer Class
@@ -37,6 +40,9 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
         return $this->RCJS->getValidFields($project_id, $event_id, $form_name);
     }
 
+    public function getProjectRequiredFields(){
+        return $this->required_project_fields;
+    }
     /**
      * Fetches all models of type dir
      * @return array

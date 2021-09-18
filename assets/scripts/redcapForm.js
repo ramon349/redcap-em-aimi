@@ -58,7 +58,7 @@ REDCapField.prototype.getRow = function() {
 
     var template_var    = window["template_" + template_suffix];
     var field_template  = $(template_var);
-    
+
     /* radio/checkboxes/selects require extra steps to extract options which are "\\n" delimited strings and need massaging
         ... current values absurdly can be an {}, [] or String */
     var enum_result = [];
@@ -94,7 +94,7 @@ REDCapField.prototype.getRow = function() {
     }
     //push a new property for multi option inputs
     this.metadata["element_enum_array"] = enum_result;
-    
+
     //following two must be in this order because using prepend, common to most template types
     if(this.metadata.hasOwnProperty("form_menu_description") && this.metadata["form_menu_description"] !== null){
         var formmenudescription = $(form_menu_description);
@@ -112,7 +112,7 @@ REDCapField.prototype.getRow = function() {
         field_template.find(".element_label").html(this.metadata["element_label"]);
         // console.log(this.metadata["element_label"]);
     }
-    
+
     field_template.find(".field_name").data("field_name", this.metadata["field_name"]);
     if(template_suffix == "radio" || template_suffix == "checkbox"){
         //Was i to do something here?
@@ -120,7 +120,7 @@ REDCapField.prototype.getRow = function() {
         field_template.find(".field_name label").attr("for", this.metadata["field_name"]);
         field_template.find(".field_name :input").attr("name", this.metadata["field_name"]);
     }
-    
+
     if(this.metadata.hasOwnProperty("current_value") && this.metadata["current_value"] != ""){
         field_template.find(":input").val(this.metadata["current_value"]);
     }
@@ -185,7 +185,7 @@ REDCapField.prototype.getRow = function() {
         field_template.find(":input").prop("readonly",true);
     }
 
-    
+
     if(field_template.length){
         return field_template;
     }else{
@@ -200,7 +200,7 @@ REDCapField.prototype.bindChange = function(element){
     // THE .change() EVENT IN MD LIBRARY HAS AN INFINITE TRIGGER BUG.
     // TODO If unable to use .change() , then need to check save dirty status
     return;
-    
+
     this.jq_input.blur(function(e){
         _this.saved = false;
         _this.save();
@@ -303,6 +303,7 @@ RCForm = {
             },
             dataType: 'json'
         }).done(function(data) {
+            console.log("metadata got lets make sure the required fields are there", this.readonly);
             this.metadata = data;
         });
     },
@@ -312,7 +313,7 @@ RCForm = {
         var action  = $("<input>").prop("type","hidden").prop("name","action").val("saveRecord");
         newForm.append(action);
         container.append(newForm);
-        
+
         this.buildFields(newForm);
 
         this.jq     = newForm;
@@ -354,7 +355,7 @@ RCForm = {
                             var kv = {};
                             var chkval  = field_value[c]["val"];
                             kv.name     = field_name + "___" + chkval;
-                            kv.value    = 1; 
+                            kv.value    = 1;
                             fields.push(kv);
                         }
                     }
@@ -362,7 +363,7 @@ RCForm = {
                     var kv = {"name": field_name, "value" : field_value};
                     fields.push(kv);
                 }
-                
+
             }
             var data = {"type" : "saveRecord", "fields" : fields};
 
@@ -375,7 +376,7 @@ RCForm = {
                 data: data,
                 dataType: 'json'
             }).done(function (result) {
-                //remove the spinny shit 
+                //remove the spinny shit
                 $("#saveRecord").removeClass("loading");
 
                 let record_id = result["record_id"];
