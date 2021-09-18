@@ -43,12 +43,7 @@ const AIMI = {
             if(selected.val() === 'custom_new')
                 AIMI.generateCustom();
             else
-                AIMI.fetchVersions(selected.val());
-        });
-
-        $('#version').on('change', function(){
-            let selected = $(this).find(":selected");
-            AIMI.fetchModelConfig(selected.val());
+                AIMI.fetchModelConfig(selected.val());
         });
 
         $('#existing_model').on('change', function(){
@@ -207,7 +202,7 @@ const AIMI = {
         const info  = JSON.parse($('#info').text());
 
         //add loading spinner to button
-        $("#apply").addClass("loading");
+        $("#submit").addClass("loading");
 
         if(uri){
             let payload = {
@@ -224,7 +219,7 @@ const AIMI = {
                     AIMI.triggerAlert('Success: configuration applied , redirecting to Run Model in a few seconds', 'success');
                     setTimeout(function(){
                         location.href = redirect_url;
-                    }, 7000);
+                    }, 5000);
                 },
                 () => AIMI.triggerAlert('Error applying config: please contact administrator', 'alert')
             );
@@ -248,10 +243,13 @@ const AIMI = {
             AIMI.sendRequest(payload,
                 ()=> {
                     $("#apply").attr("disabled",false);
-                    AIMI.triggerAlert('Success : configuration saved, please refresh', 'success');
-                    setTimeout(function(){
-                        location.href = location.href;
-                    }, 2000);
+
+                    AIMI.applyConfig();
+
+                    // AIMI.triggerAlert('Success : configuration saved, please refresh', 'success');
+                    // setTimeout(function(){
+                    //     location.href = location.href;
+                    // }, 2000);
                 },
                 ()=> AIMI.triggerAlert('Error saving config: please contact administrator', 'alert')
             );

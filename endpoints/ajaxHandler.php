@@ -36,9 +36,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $uri        = $current["url"];
                 $info       = $current["info"];
                 $ret        = $module->applyConfig($uri, $info, $alias);
-
             }
-            
+
             $redirect_url   = $module->getUrl("pages/aimi.php");
             echo json_encode($redirect_url);
             break;

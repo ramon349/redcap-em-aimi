@@ -23,6 +23,7 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
     public function __construct() {
 		parent::__construct();
         $this->RCJS 	= new \Stanford\AIMI\REDCapJsRenderer($this);
+        $this->model_repo_endpoint = MODEL_REPO_ENDPOINT;
     }
 
     //Pass through to REDCapJsRenderer Class
@@ -55,8 +56,12 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
             //Generate new model for each subtree to record versions
             if(!empty($github_entries)) {
                 foreach($github_entries as $entry) {
-                    if($entry['type'] === 'dir') //Only take dir titles
+                    if($entry['type'] === 'dir') {
+                        $path           = $entry["path"];
+                        $model_versions = $this->fetchVersions($path);
+                        $entry["versions"] = $model_versions;
                         array_push($models, $entry);
+                    }
                 }
                 return $models;
             }

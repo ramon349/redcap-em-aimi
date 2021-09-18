@@ -7,6 +7,7 @@ namespace Stanford\AIMI;
 $active_alias           = !empty($module->getProjectSetting("active_alias"))    ? $module->getProjectSetting("active_alias") : null;
 
 $repo_model_names       = $module->fetchModelNames();
+
 $previously_saved_names = $module->fetchSavedEntries();
 $model_test_names       = $previously_saved_names ? array_keys($previously_saved_names) : array();
 $used_list_items        = array("<option selected disabled>Please select a previously saved model</option>");
@@ -15,7 +16,10 @@ $new_list_items         = array("<option selected disabled>Add a new model from 
 $loading_gif            = $module->getUrl("assets/images/loading.gif");
 if(isset($repo_model_names)) {
     foreach($repo_model_names as $options) //Listing all the Stanford Models from REPO
-        array_push($new_list_items, "<option value='{$options['path']}'>{$options['path']}</option>");
+        $versions = (isset($options["versions"]) and count($options["versions"])) ? $options["versions"] : array("name" => "version_1.0", "path" => $options['path']);
+        foreach($versions as $version){
+            array_push($new_list_items, "<option value='{$version['path']}'>".str_replace("_"," ",$options['path']) ." - ".  str_replace("_"," ", $version["name"]) ."</option>");
+        }
 }
 
 foreach($model_test_names as $options)
@@ -57,15 +61,7 @@ foreach($model_test_names as $options)
 }
 </style>
 <main>
-    <?php if($active_alias) { ?>
-    <div class="alert alert-info col-sm-9 my-3" style="border:initial !important">
-        Current Active Model Alias: <b><?=$active_alias ?></b>
-    </div>
-    <?php } ?>
-    <div class="col-sm-11 my-3 row">
-        <h3 class="px-3 mb-1"><span class='ordball'>1</span> Configure or Select Pre-trained Models to use with this Module</h3>
-
-
+    <div class="col-sm-12 my-3 row">
         <div id='alert' class="callout" data-closable style="display: none">
             <button class="close-button" aria-label="Close alert" type="button" data-close>
                 <span aria-hidden="true">&times;</span>
@@ -74,12 +70,12 @@ foreach($model_test_names as $options)
         </div>
         <form class="row ">
             <input  id="path" type="hidden" >
-            <div class="col-sm-10">
+            <div class="col-sm-12">
+                <h3 class="px-3 mb-1"><span class='ordball'>1</span> Select a Pre-trained Model to use with this Module</h3>
+
                 <div class="grid-x grid-padding-x">
-                    <p class="col-sm-10 offset-sm-2 mb-4">In order to run a model, please select from the "Pre-Trained Models" (A) or "Previously Saved Configurations" (B) drop downs</p>
                     <div class="col-sm-12 row">
-                        <div class="col-sm-1 offset-sm-1"><span class="alphaball">A</span></div>
-                        <label class="col-sm-5">
+                        <label class="offset-sm-1 col-sm-5">
                              Pre-Trained Models
                             <select id="new_model" >
                                 <optgroup label="Respository Models">
@@ -90,41 +86,21 @@ foreach($model_test_names as $options)
                                 </optgroup>
                             </select>
                         </label>
-                        <label class="col-sm-5">
-                            Version
-                            <select id="version">
-                                <option selected disabled>Please select a model first</option>
-                            </select>
-                        </label>
-                    </div>
-                </div>
-
-                <h5 class="text-center col-sm-5">OR</h5>
-
-                <div class="grid-x grid-padding-x">
-                    <div class="col-sm-1 offset-sm-1"><span class="alphaball">B</span></div>
-                    <div class="col-sm-5 row">
-                        <label class="col-sm-12">
-                        Previously Saved Configurations
-                            <select id="existing_model" >
-                                <?php echo implode($used_list_items, " "); ?>
-                            </select>
-                        </label>
                     </div>
                 </div>
 
                 <div class="grid-x grid-padding-x">
                     <div class="col-sm-12 row">
-                        <p class="offset-sm-2 col-sm-10 mb-3">
+                        <p class="offset-sm-1 col-sm-10 mb-3">
                             The model details are shown below, please confirm their validity once selecting an option
                         </p>
 
-                        <div class="offset-sm-2 col-sm-10 mb-3" >
-                            <pre id="info" contentEditable="false" style="height:130px; overflow: scroll;"></pre>
+                        <div class="offset-sm-1 col-sm-10 mb-3" >
+                            <pre id="info" contentEditable="false" style="height:auto; min-height:130px; overflow: scroll;"></pre>
                         </div>
 
 
-                        <div class="offset-sm-2 col-sm-10 mb-3">
+                        <div class="offset-sm-1 col-sm-10 mb-3">
                             <label>Config URI
                                 <input disabled id="config_uri" type="text" >
                             </label>
@@ -134,26 +110,42 @@ foreach($model_test_names as $options)
                 </div>
             </div>
 
-            <hr>
-
-            <div class="col-sm-10">
+            <div class="col-sm-12">
                 <hr>
-
                 <h3 class="px-3 mb-1"><span class='ordball'>2</span> Save Configuration as an Alias</h3>
-                <p class="px-3 mb-3">If selecting a new "Pre-Trained Model", It must first be saved with an alias.  Please input a shortcut or alias and click "Save Configuration".</p>
-                <div class="grid-x grid-padding-x mb-3">
-                    <div class="medium-8 cell">
-                        <label>
-                            <input id="alias" type="text" placeholder="Please provide an alias/shortcut for this configuration">
-                        </label>
+
+                <div class="grid-x grid-padding-x">
+                    <div class="col-sm-12 row">
+                        <p class="offset-sm-1 col-sm-10 mb-3">
+                            Please provide an alias for this model.  As we implement future models/versions this will help differentiate
+                        </p>
+
+                        <div class="offset-sm-1 col-sm-10 mb-3">
+                            <label>
+                                <input id="alias" type="text" placeholder="Alias/shortcut for this model configuration">
+                            </label>
+                        </div>
+
                     </div>
                 </div>
-                <div class="col-sm-12 border-top pt-4 mt-4">
-                    <p class="mb-3">*Once a configuration is saved.  Go to <a href="<?= $module->getUrl("pages/aimi.php"); ?>">Run Model</a> and chose a model alias from the dropdown.</p>
+            </div>
 
-                    <button id="submit" type="button" class="button success rounded mr-2">Save Configuration</button>
-<!--                    <button id="apply" type="button" class="button rounded" disabled>* Activate Selected Model Configuration <i class="fas fa-spinner fa-pulse"></i></button>-->
-                    <button id="delete" type="button" class="button rounded float-right alert" disabled>Delete</button>
+
+            <div class="col-sm-12">
+                <hr>
+
+                <div class="grid-x grid-padding-x">
+                    <div class="col-sm-12 row">
+                        <p class="offset-sm-1 col-sm-10 mb-3">
+                            *Once a configuration is saved.  Go to <a href="<?= $module->getUrl("pages/aimi.php"); ?>">Run Model</a>.
+                        </p>
+
+                        <div class="offset-sm-1 col-sm-10 mb-3">
+                            <button id="submit" type="button" class="button success rounded mr-2">Save Configuration & Make Active</button>
+<!--                            <button id="delete" type="button" class="button rounded float-right alert" disabled>Delete</button>-->
+                        </div>
+
+                    </div>
                 </div>
             </div>
         </form>

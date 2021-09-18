@@ -98,6 +98,7 @@ async function loadModel() {
     const warmupResult = await model.predict(zero_tensor, );
 
 
+    $("#redcap_container").slideDown("slow");
     tf.dispose(warmupResult);
     tf.dispose(zero_tensor);
 

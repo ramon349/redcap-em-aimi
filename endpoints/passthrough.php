@@ -10,7 +10,7 @@ $aliases        = $module->getProjectSetting('aliases');
 $current        = $aliases[$active_alias];
 $shard_paths    = array_key_exists("model_json",$current) && !empty($current["model_json"]) ? $current["model_json"]["weightsManifest"][0]["paths"] : array();
 
-if($em_setting && !$file_path){
+if($em_setting && !$file_name){
     if($em_setting == "config_js"){
         header("content-type: application/javascript");
         echo $current["config_js"];

@@ -263,6 +263,10 @@ foreach($js_sources as $js){
         top:15px;
         right:15px;
     }
+
+    #redcap_container {
+        display:none;
+    }
 </style>
 <main>
     <div class="col-sm-11 my-3 row">
@@ -277,22 +281,7 @@ foreach($js_sources as $js){
                     <h5>Go to <a href='<?=$url_configmodel?>'>Config/Select Model</a> to configure and save at least one pre-trained model*.</h5>
                 </div>
             <?php
-            }elseif(!$active_alias){
-            ?>
-                <div class="well alert-danger my-4">
-                    <h4>Please activate a pre-saved model alias.</h4>
-                    <select class="model_select"  style="vertical-align:middle">
-                        <?php
-
-                            foreach($aliases as $alias => $meta){
-                                echo "<option $selected value='$alias'>$alias</option>";
-                            }
-                        ?>
-                    </select>
-                    <button class="btn btn-xs btn-info activate_model"><i class="fas fa-spinner fa-pulse "></i> Activate Model</button>
-                </div>
-            <?php
-                }else{
+            }else{
             ?>
                 <div class="progress mb-2 model-progress-bar" style="">
                     <div class="progress-bar pl-3" style="text-align: left">Loading Model</div>
@@ -305,18 +294,6 @@ foreach($js_sources as $js){
         <?php
             if($selected_model){
         ?>
-            <div id="model_select">
-                <select class="model_select"  style="vertical-align:middle">
-                    <?php
-
-                    foreach($aliases as $alias => $meta){
-                        $selected = $alias == $active_alias ? "selected" : null;
-                        echo "<option $selected value='$alias'>$alias</option>";
-                    }
-                    ?>
-                </select>
-                <button class="btn btn-xs btn-info activate_model" disabled><i class="fas fa-spinner fa-pulse "></i> <span></span> Model</button>
-            </div>
             <div class="post-model" hidden>
                 <div class="col-sm-12 row">
                     <div class="col-sm-4 main_image">
