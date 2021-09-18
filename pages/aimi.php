@@ -63,8 +63,6 @@ foreach($js_sources as $js){
 
     //CURRENT MODEL DETAILS
     var _alias              = "<?= $active_alias ?>";
-    var _uri                = "<?= $current_config_uri ?>";
-    var _info               = <?= json_encode($current_info) ?>;
 
     //ACTIVATE NEW SAVED MODELS
     function applyActiveConfig(alias, loading){
@@ -81,7 +79,8 @@ foreach($js_sources as $js){
         }).done(function(redirect_url){
             //remove loading
             if(loading){
-                loading.removeClass("loading");
+                console.log("what the fuck is loading?");
+                // loading.removeClass("loading");
             }
             setTimeout(function(){
                 location.href = redirect_url;

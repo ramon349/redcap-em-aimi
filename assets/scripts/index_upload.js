@@ -62,7 +62,7 @@ async function loadModel() {
         //Adding session cache flag to avoid double reloading
         var session_cache_model = sessionStorage.getItem('session_cache_model');
         if(_alias && !session_cache_model){
-            applyActiveConfig(_alias, _uri, _info);
+            applyActiveConfig(_alias, );
             sessionStorage.setItem('session_cache_model', 1);
             return;
         }

@@ -33,10 +33,10 @@ foreach($model_test_names as $options)
     width: 100%;
 }
 
-#apply .fas{
+#submit .fas{
     display:none;
 }
-#apply.loading .fas{
+#submit.loading .fas{
     display:inline-block;
 }
 
@@ -141,7 +141,7 @@ foreach($model_test_names as $options)
                         </p>
 
                         <div class="offset-sm-1 col-sm-10 mb-3">
-                            <button id="submit" type="button" class="button success rounded mr-2">Save Configuration & Make Active</button>
+                            <button id="submit" type="button" class="button success rounded mr-2">Save Configuration & Make Active <i class="fas fa-spinner fa-pulse"></i></button>
 <!--                            <button id="delete" type="button" class="button rounded float-right alert" disabled>Delete</button>-->
                         </div>
 

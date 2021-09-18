@@ -3,7 +3,7 @@ namespace Stanford\AIMI;
 /** @var \Stanford\AIMI\AIMI $module */
 
 $em_setting = (isset($_GET["em_setting"])) ? filter_var($_GET["em_setting"], FILTER_SANITIZE_STRING) : null;
-$file_name  = (isset($_GET["file"])) ? filter_var($_GET["file"], FILTER_SANITIZE_STRING) : null;
+$file_name  = (isset($_GET["shard"])) ? filter_var($_GET["shard"], FILTER_SANITIZE_STRING) : null;
 
 $active_alias   = $module->getProjectSetting("active_alias");
 $aliases        = $module->getProjectSetting('aliases');
