@@ -39,19 +39,13 @@
 	"links": {
 		"project": [
 			{
-		        "name": "Stanford AIMI Instructions",
-		        "icon": "fas fa-info-circle",
-		        "url" : "pages/instructions.php",
-		        "show-header-and-footer": true
-			},
-			{
-		        "name": "Select & Activate Model",
+		        "name": "AIMI: Select & Activate Model",
 		        "icon": "fas fa-laptop-code",
 		        "url" : "pages/config_model.php",
 		        "show-header-and-footer": true
 			},
 			{
-		        "name": "Run Active Model",
+		        "name": "AIMI: Run Active Model",
 		        "icon": "fas fa-arrow-alt-circle-right",
 		        "url" : "pages/aimi.php",
 		        "show-header-and-footer": true
@@ -83,7 +77,7 @@
         },
         {
             "key": "model_repo_endpoint",
-            "name": "<b>Model Repo Endpoint</b><br><i>Default: https://api.github.com/repos/susom/redcap-aimi-models/contents</i>",
+            "name": "<b>Override Model Repository URL</b><br><i>Leave blank for default: https://api.github.com/repos/susom/redcap-aimi-models/contents</i>",
             "required": false,
             "type": "text"
         },

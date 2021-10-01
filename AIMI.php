@@ -40,6 +40,10 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
         return $this->RCJS->getValidFields($project_id, $event_id, $form_name);
     }
 
+    public function getDefaultRepo(){
+        return $this->model_repo_endpoint;
+    }
+
     public function getProjectRequiredFields(){
         return $this->required_project_fields;
     }
@@ -55,7 +59,7 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
 
             //TODO RATE LIMITED TO 60 PER HOUR MIGHT HAVE TO ADUST
             //Grab all root repository contents, non recursively
-            $rate_limit = $this->getClient()->createRequest("GET", 'https://api.github.com/rate_limit');
+            $rate_limit     = $this->getClient()->createRequest("GET", 'https://api.github.com/rate_limit');
             $github_entries = $this->getClient()->createRequest("GET", $this->model_repo_endpoint);
             $models = array();
 
@@ -63,9 +67,9 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
             if(!empty($github_entries)) {
                 foreach($github_entries as $entry) {
                     if($entry['type'] === 'dir') {
-                        $path           = $entry["path"];
-                        $model_versions = $this->fetchVersions($path);
-                        $entry["versions"] = $model_versions;
+                        $path               = $entry["path"];
+                        $model_versions     = $this->fetchVersions($path);
+                        $entry["versions"]  = $model_versions;
                         array_push($models, $entry);
                     }
                 }
@@ -179,16 +183,19 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
     public function saveConfig($alias, $config)
     {
         try{
-            $alias = urldecode($alias); //store key as decoded alias
-            $existing = $this->getProjectSetting('aliases');
+            $alias      = urldecode($alias); //store key as decoded alias
+            $existing   = $this->getProjectSetting('aliases');
 
-            if(!isset($existing))
+            if(!isset($existing)) {
                 $existing = array();
+            }
 
-            if (array_key_exists($alias,$existing))
-                throw new \Exception("Error: alias: $alias already exists, skipping");
-
-            $build = array_merge($existing, array($alias=>$config));
+            if(!array_key_exists($alias,$existing)){
+                $build          = array_merge($existing, array($alias=>$config));
+            }else{
+                $build          = $existing;
+                $build[$alias]  = $config;
+            }
 
             $build[$alias]["shard_edocs"]   = array(); // array that specifies edoc IDs for already saved models
             $build[$alias]["model_json"]    = null;

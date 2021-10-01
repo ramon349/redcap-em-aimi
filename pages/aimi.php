@@ -8,9 +8,6 @@ $dedicated_upload_js    = $module->getUrl("assets/scripts/index_upload.js");
 $url_configmodel        = $module->getUrl("pages/config_model.php");
 $ajax_endpoint          = $module->getUrl("endpoints/ajaxHandler.php");
 
-$UI_title               = !empty($module->getProjectSetting("run_model_page_title")) ? $module->getProjectSetting("run_model_page_title") : "XrayFusion";
-$UI_subtitle            = !empty($module->getProjectSetting("run_model_page_subtitle")) ? $module->getProjectSetting("run_model_page_subtitle")  : "Powered by the <a href='https://arxiv.org/abs/1901.07031' target='_blank'>CheXpert</a> model. Diseases included are based on prevalence in reports and clinical relevance.";
-
 //Active Model Meta Data
 $selected_config        = !empty($module->getProjectSetting("config_uri")) ? $module->getProjectSetting("config_uri") : null;;
 $active_alias           = !empty($module->getProjectSetting("active_alias")) ? $module->getProjectSetting("active_alias") : null;
@@ -21,6 +18,8 @@ $current                = $aliases[$active_alias];
 $current_info           = array_key_exists("info",$current) ? $current["info"] : array();
 $current_config_uri     = array_key_exists("url",$current) ? $current["url"] : null;
 $shard_paths            = array_key_exists("model_json",$current) ? $current["model_json"]["weightsManifest"][0]["paths"] : array();
+$UI_title               = !empty($current_info) ? $current_info["name"] : "Model Name Info Missing";
+$UI_subtitle            = !empty($current_info) ? $current_info["description"] : "Model Description Info Missing";
 
 //Should be including recap_config.js, if not exist or new model active, will need to create new
 $selected_model         = array_key_exists("config_js", $current) ? $module->getUrl("endpoints/passthrough.php?em_setting=config_js", true, true) : null;
@@ -275,7 +274,7 @@ foreach($js_sources as $js){
 <main>
     <div class="col-sm-11 my-3 row">
         <div class="col-sm-12 viewer_hd">
-            <h1><?=$UI_title?><?=$temp_shard_folder?></h1>
+            <h1><?=$UI_title?></h1>
             <p><?=$UI_subtitle?></p>
             <?php
             if(empty($alias_names)){
@@ -305,12 +304,12 @@ foreach($js_sources as $js){
                         <img id="xray-image" src="<?=$placeholder_image?>" width="320" height="320" class="select-xray"/>
                         <img id="xray-image1" src="<?=$placeholder_image?>" width="320" height="320" style=" display:none;"/>
                         <div id="xray_canvas" style="display: none;" ></div>
-                        <button class="btn btn-info select-xray"><i class="fas fa-x-ray"></i> Select X-ray Image</button>
+                        <button class="btn btn-info select-xray"><i class="fas fa-x-ray"></i> Select Image</button>
                     </div>
                     <div class="col-sm-6 model_details">
                         <h5>ML Model Details:</h5>
                         <ul>
-                        <li><b>Saved Model Alias:</b> <?=$active_alias ?? "N/A" ?></li>
+                        <li><b>Saved Model Configuration:</b> <?=$active_alias ?? "N/A" ?></li>
                         <li><b>Model Path:</b> <span id="selected_config"><?=$selected_config?></span></li>
                         </ul>
 

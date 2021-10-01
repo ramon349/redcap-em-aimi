@@ -40,10 +40,17 @@ const AIMI = {
         $('#new_model').on('change', function(){
             AIMI.clearFields('existing_model');
             let selected = $(this).find(":selected");
-            if(selected.val() === 'custom_new')
+            if(selected.val() === 'custom_new') {
                 AIMI.generateCustom();
-            else
+            }else {
+                $("#alias").val(selected.text());
                 AIMI.fetchModelConfig(selected.val());
+            }
+        });
+
+        $(".collapsible").on("click", function(){
+            $(this).toggleClass("active");
+            $(".showhide_content").toggleClass("active");
         });
 
         $('#existing_model').on('change', function(){
@@ -175,6 +182,16 @@ const AIMI = {
 
         if("info" in response){
             $('#info').html(JSON.stringify(response['info'], null, 2));
+            var model_meta          = response['info'];
+            var model_name          = model_meta["name"];
+            var model_description   = model_meta["description"];
+            var model_authors       = model_meta["authors"].join(", ");
+            var model_release       = model_meta["released"];
+
+            $("#model_name").text(model_name);
+            $("#model_description").text(model_description);
+            $("#model_authors").text(model_authors);
+            $("#model_release").text(model_release);
         } else {
             $('#info').html('No redcap_config.json found in repository for this model');
         }
@@ -275,6 +292,9 @@ const AIMI = {
 
 $(function(){
     AIMI.bind();
+    if($("#new_model option:selected").length){
+        $("#new_model").trigger("change");
+    }
 });
 
 
