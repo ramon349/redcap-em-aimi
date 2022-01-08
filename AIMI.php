@@ -79,7 +79,7 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
             throw new \Exception('Error: Request to pull model files returned null');
 
         } catch (\Exception $e) {
-            $this->emError($e->getMessage());
+            //$this->emError($e->getMessage());
         }
     }
 
@@ -104,7 +104,7 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
             return $versions;
 
         } catch (\Exception $e) {
-            $this->emError($e->getMessage());
+            //$this->emError($e->getMessage());
         }
         exit;
     }
@@ -139,7 +139,7 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
             throw new \Exception("Error: no config.js found for URI: {$contents['html_url']}");
 
         } catch (\Exception $e) {
-            $this->emError($e->getMessage());
+            //$this->emError($e->getMessage());
         }
     }
 
@@ -167,10 +167,10 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
                 //and delete the redcap_config.js
                 $result = $this->setProjectSetting('active_alias', null);
 
-                $this->emDebug("active alias/model deleted");
+                //$this->emDebug("active alias/model deleted");
             }
         } else {
-            $this->emError('Error removing alias, alias not found');
+            //$this->emError('Error removing alias, alias not found');
         }
         return $existing;
     }
@@ -208,7 +208,7 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
             http_response_code(200);//return 200 on success
 
         } catch (\Exception $e) {
-            $this->emError($e->getMessage());
+            //$this->emError($e->getMessage());
             http_response_code(400);
         }
     }
@@ -223,7 +223,7 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
             $existing = $this->fetchSavedEntries();
             return $existing[urldecode($alias)];
         } catch(\Exception $e) {
-            $this->emError($e->getMessage());
+            //$this->emError($e->getMessage());
             http_response_code(400);
         }
     }
@@ -289,7 +289,7 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
                             //need to first download the file to redcap temp
                             $temp_path = APP_PATH_TEMP . "AIMI_" . $name;
                             file_put_contents($temp_path, $shard_binary_or_js);
-                            $this->emDebug("temp_path", $temp_path);
+                            //$this->emDebug("temp_path", $temp_path);
 
                             //then we can use File::upload to upload the temp file to edoc
                             $file       = array(
@@ -327,7 +327,7 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
             }
         } catch (\Exception $e) {
             echo 'Caught exception: ', $e->getMessage(), "\n";
-            $this->emError($e->getMessage());
+            //$this->emError($e->getMessage());
         }
 
 //        $this->emDebug("temp_shard_paths ", $temp_shard_paths);
@@ -355,7 +355,7 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
                 throw new \Exception('URI not passed');
             }
         } catch(\Exception $e) {
-            $this->emError($e->getMessage());
+            //$this->emError($e->getMessage());
             http_response_code(400);
         }
     }
@@ -370,10 +370,10 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
         foreach ($dirList as $file) {
             if (!in_array($file, $files_to_keep)) {
                 if (is_dir($file)) {
-                    $this->emDebug("is dir remove $file");
+                    //$this->emDebug("is dir remove $file");
                     rmdir($file);
                 } else {
-                    $this->emDebug("is file remove $file");
+                    //$this->emDebug("is file remove $file");
                     unlink($file);
                 }
             }
@@ -402,7 +402,7 @@ class AIMI extends \ExternalModules\AbstractExternalModule {
 				$thisUrl 	= $url . "&pid=$project_id"; //project specific
 				$client 	= new Client();
 				$response 	= $client->createRequest('GET', $thisUrl, array(\GuzzleHttp\RequestOptions::SYNCHRONOUS => true));
-				$this->emDebug("running cron for $url on project $project_id");
+				//$this->emDebug("running cron for $url on project $project_id");
 			}
 		}
     }
